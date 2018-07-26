@@ -2,10 +2,6 @@
     <variable name="API_KEY_FOR_ANDROID" value="AIzaSyBlEvVLjNRwDyd2vNECoBSsS6v_yEYc0m0" />
     <variable name="API_KEY_FOR_IOS" value="AIzaSyBlOXsfHGBOwzQyoVs-fkrjo9LC8K3GeI0" />
 </plugin>
-# Ionic 2 Taxi App
-
-[![Build Status](https://travis-ci.org/ddellamico/ionic2-taxi-app.svg?branch=master)](https://travis-ci.org/ddellamico/ionic2-taxi-app) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat-square)](http://commitizen.github.io/cz-cli/) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT) [![Dependency Status](https://david-dm.org/ddellamico/ionic2-taxi-app.svg)](https://david-dm.org/ddellamico/ionic2-taxi-app) [![devDependency Status](https://david-dm.org/ddellamico/ionic2-taxi-app/dev-status.svg)](https://david-dm.org/ddellamico/ionic2-taxi-app#info=devDependencies)
 
 The main purpose for this project, it's provide a simple starting point for building 'on-demand/rideshare taxi' ionic application ( something like Uber, Lyft or Sidecar .. ) or more generally, applications using extensively Google Maps JavaScript API. 
 
@@ -17,18 +13,7 @@ When the user stop moving the map, an InfoWindow shows the new position. To achi
 If you are looking for a more complex and complete Ionic 2 app sample, [check out here](https://github.com/ddellamico/ionic-conference-app).
 
 **Note: This project is under development.**
-
-## App Preview
-
-<p align="center">
-  <img src="http://37.139.10.18/images/1_Home.png" alt="Home" width="250">
-  <img src="http://37.139.10.18/images/2_Search.png" alt="Search" width="250">
-  <img src="http://37.139.10.18/images/3_AutoComplete.png" alt="AutoComplete" width="250">
-  <img src="http://37.139.10.18/images/4_Confirmation.png" alt="Confirmation" width="250">
-  <img src="http://37.139.10.18/images/5_Rides.png" alt="Rides" width="250">
-  <img src="http://37.139.10.18/images/6_Menu.png" alt="Menu" width="250">
-</p>
-  
+ 
 ## Features
   * Ionic 2 Final: <https://github.com/driftyco/ionic>
   * [TypeScript](http://www.typescriptlang.org/)
@@ -75,8 +60,6 @@ If you are looking for a more complex and complete Ionic 2 app sample, [check ou
   ```
   
 ## Commit:
-  
-  Follows [AngularJS's commit message convention](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#-git-commit-guidelines)
   ```sh
   # Lint and execute tests before committing code.
   npm run commit
@@ -90,10 +73,6 @@ If you are looking for a more complex and complete Ionic 2 app sample, [check ou
 ```sh
 $ npm test
 ```
- 
-## Changelog
-
-You can check the changelog [here](https://github.com/ddellamico/ionic2-taxi-app/blob/master/CHANGELOG.md)
 
 ## Todo
 
