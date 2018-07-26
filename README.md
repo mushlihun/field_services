@@ -31,10 +31,10 @@ If you are looking for a more complex and complete Ionic 2 app sample, [check ou
   
   ```bash
   # Clone the repo
-  $ git clone https://github.com/ddellamico/ionic2-taxi-app
+  $ git clone https://github.com/mushlihun/order_service
   -----
   # change directory to our repo
-  cd ionic2-taxi-app
+  cd order_service
   -----
   # install the repo with yarn
   yarn
