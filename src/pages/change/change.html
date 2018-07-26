@@ -1,0 +1,25 @@
+<ion-header>
+    <ion-navbar>
+      <ion-title>Change Password</ion-title>
+    </ion-navbar>
+  </ion-header>
+
+<ion-content>
+  <form [formGroup]="changeForm" (submit)="update()">
+  <div class="change-info">
+      <ion-item>
+          <ion-label color="primary" stacked>Password Baru</ion-label>
+          <ion-input type="text" formControlName="newpassword" placeholder="New Password" required="required"></ion-input>
+          <!-- <ion-input type="text" [(ngModel)]="newpassword" placeholder="New Password" required="required"></ion-input> -->
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary" stacked>Confirm Password</ion-label>
+          <ion-input type="text" formControlName="confirmpassword" placeholder="Confirm Password" required="required"></ion-input>
+          <!-- <ion-input type="text" [(ngModel)]="confirmpassword" placeholder="Confirm Password" required="required"></ion-input> -->
+        </ion-item>
+            <button class="btn-login" ion-button full color="primary" type="submit">SUBMIT</button>
+            <!-- <button class="btn-login" ion-button full color="primary" (click)="update()">SUBMIT</button> -->
+  </div>
+  </form>
+  <!-- <button  ion-button full color="primary" (click)="coba()">Change Password</button> -->
+</ion-content>

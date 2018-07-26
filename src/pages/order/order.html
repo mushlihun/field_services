@@ -1,0 +1,154 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title text-center>Order</ion-title>
+  </ion-navbar>  
+    <!-- Segment buttons with text -->
+    <ion-segment [(ngModel)]="order" color="primary">
+      <ion-segment-button value="direct">
+        Direct
+      </ion-segment-button>
+      <ion-segment-button value="schedule">
+        Schedule
+      </ion-segment-button>
+    </ion-segment>
+</ion-header>
+
+<ion-content>
+    <div [ngSwitch]="order">
+    <ion-list *ngSwitchCase="'direct'">
+        <h3 *ngIf="waypoints.length === 0" text-center padding>Tidak Ada Order Yang Ditemukan</h3>
+        <ion-card *ngFor="let w of waypoints" class="orders">
+          <ion-card-content>
+              <ion-item-divider class="date">
+              <h3 text-right class="tanggal">{{ w.updated_at }}</h3>
+              </ion-item-divider>
+          <h3>
+            <ion-icon name="locate" class="icon-locate" item-left></ion-icon>            
+            <p class="pas">{{ w.pickup_location }}</p>
+          </h3>
+          <h3>
+              <ion-icon name="pin" class="icon-pin" item-left></ion-icon>
+              <p class="pas">{{ w.dropoff_location }}</p>
+          </h3>
+          <h3>
+              <ion-icon name="person" item-left></ion-icon>
+              <p class="pas">{{w.mileage}}</p>
+          </h3>
+          </ion-card-content>
+        </ion-card>
+      </ion-list>
+      <!-- <ion-list *ngSwitchCase="'orderan'">
+        <h3 *ngIf="waypointss.length === 0" text-center padding>Tidak Ada Order Yang Ditemukan</h3>
+        <ion-card *ngFor="let w of waypointss" class="orders">
+          <ion-card-content>
+              <ion-item-divider class="date">
+              <h3 text-right class="tanggal">{{ w.updated_at }}</h3>
+              </ion-item-divider>
+          <h3>
+            <ion-icon name="locate" class="icon-locate" item-left></ion-icon>            
+            <p class="pas">{{ w.pickup_location }}</p>
+          </h3>
+          <h3>
+              <ion-icon name="pin" class="icon-pin" item-left></ion-icon>
+              <p class="pas">{{ w.dropoff_location }}</p>
+            </h3>
+          <h3>
+            <ion-icon name="person" item-left></ion-icon>
+            <p class="pas">{{ drivername.full_name }}</p>
+          </h3>
+          </ion-card-content>
+        </ion-card>
+      </ion-list> -->
+        <!--<div [ngSwitch]="order">
+        <ion-list>
+          <h2 *ngIf="waypoints.length === 0" text-center padding>Tidak Ada Order Yang Ditemukan</h2>
+          <ion-item *ngFor="let w of waypoints" class="order"> 
+            <ion-card>
+            <ion-card-header>
+              <ion-item>
+              <ion-label class="Tanggal" text-right><p>April 2018, 17:00</p></ion-label>
+              <ion-label class="time" [(ngModel)]="updatedat" ngDefaultControl></ion-label>
+              </ion-item>
+            </ion-card-header>
+            <ion-card-content> 
+              <ion-icon name="locate" class="icon-locate"></ion-icon> 
+              <br><ion-icon name="pin" class="icon-pin"></ion-icon> 
+              <br><ion-icon name="person"></ion-icon> 
+            </ion-card-content>
+            </ion-card>  
+            <ion-card>
+              <ion-card-header>
+                  <ion-item>
+                      <ion-label></ion-label>
+                      <ion-datetime displayFormat="MMM DD, YYYY HH:mm A"></ion-datetime>
+                    </ion-item>
+              </ion-card-header>
+              <ion-card-content> 
+                <ion-icon name="locate" class="icon-locate"></ion-icon> Jl. Ketapang Utara, Krukut, Tamansari, Kota Jakarta Barat, Daerah Khusus Ibukota Jakarta 11140
+                <br><ion-icon name="pin" class="icon-pin"></ion-icon> Monas
+                <br><ion-icon name="person"></ion-icon> Mr. Anwar
+              </ion-card-content>
+              </ion-card>        
+          </ion-item>
+        </ion-list> -->
+        
+        <ion-list *ngSwitchCase="'schedule'">
+            <h3 *ngIf="waypoints.length === 0" text-center padding>Tidak Ada Order Yang Ditemukan</h3>
+            <!-- <ion-card *ngFor="let w of waypoints" class="orders">
+              <ion-card-content>
+                  <ion-item-divider class="date">
+                  <h3 text-right class="tanggal">{{ w.updated_at }}</h3>
+                  </ion-item-divider>
+              <h3>
+                <ion-icon name="locate" class="icon-locate" item-left></ion-icon>            
+                <p class="pas">{{ w.pickup_location }}</p>
+              </h3>
+              <h3>
+                  <ion-icon name="pin" class="icon-pin" item-left></ion-icon>
+                  <p class="pas">{{ w.dropoff_location }}</p>
+              </h3>
+              <h3>
+                  <ion-icon name="person" item-left></ion-icon>
+                  <p class="pas">{{w.mileage}}</p>
+              </h3>
+              </ion-card-content>
+            </ion-card> -->
+          <!-- <ion-card>
+            <ion-card-header>
+                <ion-item>
+                    <ion-label>Date-Time</ion-label>
+                    <ion-datetime displayFormat="MMM DD, YYYY HH:mm A"></ion-datetime>
+                  </ion-item>
+            </ion-card-header>
+            <ion-card-content> 
+              <ion-icon name="locate" class="icon-locate"></ion-icon> Jln. Alamat 1, Zainal Arifin, KH/. Alamat 2, Ketapang Kecil. Kelurahan, Kel. Petojo Utara. Kecamatan, Kec. Gambir. Kota, Jakarta Pusat 10130
+              <br><ion-icon name="pin" class="icon-pin"></ion-icon> Monas
+              <br><ion-icon name="person"></ion-icon> Mr. Anwar
+            </ion-card-content>
+            </ion-card>  
+            <ion-card>
+              <ion-card-header>
+                  <ion-item>
+                      <ion-label>Date-Time</ion-label>
+                      <ion-datetime displayFormat="MMM DD, YYYY HH:mm A"></ion-datetime>
+                    </ion-item>
+              </ion-card-header>
+              <ion-card-content> 
+                <ion-icon name="locate" class="icon-locate"></ion-icon> Jln. Alamat 1, Zainal Arifin, KH/. Alamat 2, Ketapang Kecil. Kelurahan, Kel. Petojo Utara. Kecamatan, Kec. Gambir. Kota, Jakarta Pusat 10130
+                <br><ion-icon name="pin" class="icon-pin"></ion-icon> Monas
+                <br><ion-icon name="person"></ion-icon> Mr. Anwar
+              </ion-card-content>
+              </ion-card> -->
+        </ion-list>
+        </div>
+        
+        
+
+    <!-- <ion-list>
+        <ion-list-header>{{ order }}</ion-list-header>
+        <ion-item *ngFor="let item of getItems(order)">
+          {{ item.name }}
+          <button ion-button outline item-end>{{ item.price }}</button>
+        </ion-item>
+      </ion-list> -->
+</ion-content>

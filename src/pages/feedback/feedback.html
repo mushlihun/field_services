@@ -1,0 +1,63 @@
+<ion-header>
+    <ion-navbar>
+      <ion-title text-center>Trip Selesai</ion-title>
+    </ion-navbar>
+  </ion-header>
+<ion-content>
+  
+  <div class="feedback-info">
+     
+          <p class="info" text-center>Anda telah mencapai tujuan</p>
+      <ion-card>          
+          <ion-item>
+            <ion-icon class="icon-locate" name="locate" item-left large ></ion-icon>
+            <div>Pick-up Location</div>
+            <!-- <div class="pick">Jl. Ketapang Utara, Krukut, Tamansari, Kota Jakarta Barat, Daerah Khusus Ibukota Jakarta 11140</div> -->
+            <div class="pickup">{{departure}}</div>
+          </ion-item>
+          </ion-card>
+          <h6 class="strip" text-center>|</h6> 
+          <ion-card class="person">
+          <ion-item>
+              <ion-icon name="person" item-left large ></ion-icon>
+              <div>Your Driver</div>
+              <!-- <div class="pick">Mr. Bagus Widianto Adm</div> -->
+              <div class="namedriver">{{drivername}}</div>
+          </ion-item>
+          </ion-card> 
+          <h6 class="strip" text-center>|</h6>  
+        <ion-card>
+          <ion-item >
+              <ion-icon class="icon-pin" name="pin" item-left large ></ion-icon>
+              <div>Drop-off Location</div>
+              <!-- <div class="pick">Monas</div> -->
+              <div class="pick">{{destination}}</div>
+            </ion-item>
+        </ion-card>
+        
+        <ion-card class="trip">
+            <ion-item >
+                <div text-center>Trip Time</div>
+                <div class="pick" text-center>{{times}}</div>
+              </ion-item>
+        </ion-card>
+        <ion-card class="km">
+              <ion-item>
+                  <div text-center>Mileage</div>
+                  <div class="pick" text-center>{{distances}}</div>
+                </ion-item>
+        </ion-card>
+        <ion-item class="komen">
+            <ion-label color="primary" stacked text-center>Komentar</ion-label>
+            <ion-input [(ngModel)] = "komen" class="inputext" type="text" placeholder="Isi Komentar">
+            </ion-input>
+        </ion-item>
+    <ion-rating
+        [numStars]="5"
+        [readOnly]="false"
+        [value]="0"
+        (clicked)="starClicked($event)">
+    </ion-rating>
+  </div>
+      <button class="btn-login" ion-button full color="primary" (click)="Feedback($event)">SUBMIT</button>
+</ion-content>

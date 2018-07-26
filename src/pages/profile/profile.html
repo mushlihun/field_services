@@ -1,0 +1,33 @@
+<ion-header>
+    <ion-navbar>
+      <ion-title text-center>
+        Profile
+      </ion-title>
+    </ion-navbar>
+  </ion-header>
+<ion-content>
+  <div padding class="profile-info">
+    <ion-item>
+      <ion-label color="primary" stacked>Full name</ion-label>
+      <ion-input [readonly]="isReadonly" class="label" type="text" [(ngModel)]="fullname"><p>{{fullname}}</p></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label color="primary" stacked>Email</ion-label>
+      <ion-input [readonly]="isReadonly" class="label" type="email" [(ngModel)]="email">{{email}}</ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label color="primary" stacked>Phone number</ion-label>
+      <ion-input [readonly]="isReadonly" class="label" type="text" [(ngModel)]="phone">{{phone}}</ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label color="primary" stacked>Division</ion-label>
+      <ion-input [readonly]="isReadonly" class="label" type="text" [(ngModel)]="divisionid">{{divisionid}}</ion-input>
+    </ion-item>
+    </div>
+    <ion-fab bottom class="change">
+          <button  ion-button full color="primary" (click)="goToChange()">Change Password</button>
+      </ion-fab>
+      <ion-fab bottom class="logout">
+          <button  ion-button full color="primary" (click)="logUserOut()">Logout</button>
+      </ion-fab>
+</ion-content>

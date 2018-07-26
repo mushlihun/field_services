@@ -1,0 +1,315 @@
+.map-page {
+  background: rgb(229, 227, 223);
+.card-id {
+  width: 100%;
+  bottom: 0px;
+  background-color: white;
+  height: 25%;
+}
+.headform {
+  width: 97%;
+  margin-left: 1%;
+  top: 20px;
+}
+.alert-md .alert-wrapper {
+  margin-top: 40%;
+}
+.input1 {
+  margin-bottom: 2%;
+  height: 1px;
+  border: 2px solid black;
+  left: -5%;
+  border-bottom-color: white;
+}
+.input2 {
+  margin-bottom: 2%;
+  height: 1px;
+  border: 2px solid black;
+  left: -5%;
+  border-bottom-color: white;
+}
+.item-md.item-input.input-has-focus .item-inner {
+  border-bottom-color: white;
+  box-shadow: inset 0 -1px 0 0 white;
+}
+
+.list-md .item-input.input-has-focus:last-child {
+  border-bottom-color: white;
+  box-shadow: inset 0 -1px 0 0 white;
+}
+
+.item-md.item-input.ng-valid.input-has-value:not(.input-has-focus) .item-inner {
+  border-bottom-color: white;
+  box-shadow: inset 0 -1px 0 0 white;
+}
+
+.list-md .item-input.ng-valid.input-has-value:not(.input-has-focus):last-child {
+  border-bottom-color: white;
+  box-shadow: inset 0 -1px 0 0 white;
+}
+.item-md.item-block .item-inner {
+  box-shadow: initial;
+}
+.text-input-md {
+  margin-left: 7%;
+}
+.inputext {
+  margin-top:2%;
+  margin-left: -5px;
+  background-color: transparent;
+  color: black;
+  border-bottom-color: black;
+  box-shadow: inherit;
+  font-size: 0.8em;
+}
+.icon{
+  position: absolute;
+  font-size: 1.5em;
+  padding: 0px;
+  top: 25%;
+  left: 5%;
+}
+.icon-text {
+  position: absolute;
+  font-size: 1.5em;
+  padding: 0px;
+  top: 2%;
+  left: 25%;
+  color: blue;
+}
+.icon-locate {
+  color: turquoise;
+  left: 4%;
+  top: 35%;
+}
+.icon-pin {
+  color: #206189;
+  top: 35%;
+}
+.note1 {
+  position: absolute;
+  top: 30%;
+  right: 0%;
+  height: 25%;
+  background-color: transparent;
+  box-shadow: none;
+}
+.note {
+  position: fixed;
+  top: 20%;
+  right: 5%;
+}
+.time {
+  position: fixed;
+  top: 20%;
+  right: 10%;
+}
+.top-buttons{
+  // border: 1px solid color($colors, nav-border-bottom, base);
+  border-radius: 0px;
+  margin-bottom: 40px;
+  animation-name: bump;
+  animation-duration: 0.3s;
+  animation-iteration-count: 1;
+}
+.onbar3 {
+  font-size: 2.5em;
+}
+.contact {
+  background-color: green;
+  color: white;
+  width: 100%;
+}
+.cancel {
+  background-color: red;
+  color: white;
+  width: 100%;
+}
+.btn-order {
+  bottom: 2%;
+  width: 46%;
+  background-color: white;
+}
+.fullorder {
+  width: 100%;
+  background-color: white;
+  bottom: 0px;
+  height: 12%;
+}
+.identity {
+  margin: 0 0 10% 0%;
+  width: 100%;
+}
+.identity2 {
+  margin-bottom: 4%;
+}
+.form {
+  bottom: 13px;
+  width: 99%;
+  margin-bottom: 2px;
+  background-color: white;
+  border-radius: 7px;
+}
+.car {
+  top: 25%;
+}
+.people {
+  top: 2%;
+}
+.text {
+  top: 50%;
+}
+p {
+  font-size: 0.9em;
+}
+.plat {
+  bottom: 25%;
+  color: white;
+  font-size: 1.6em;
+  font-style: italic;
+  background: url(../assets/img/background_header.png);
+  background-size: 100%;
+  width: 100%;
+}
+.button-full-md {
+  margin-right: 0px;
+  margin-left: 0px;
+  border-right-width: 0px;
+  border-left-width: 0px;
+  border-radius: 7px;
+}
+  #gmaps {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 150ms ease-in
+  }
+  #btn2 {
+    background-color: white;
+  }
+  #gmaps.show-map {
+    opacity: 1;
+  }
+
+  #centerMarker {
+    width: 20px;
+    height: 30px;
+    display: block;
+    content: ' ';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -40px 0 0 -11px;
+    // background: url(../assets/icon/icon_pickup.png);
+    background-size: 20px 30px; /* Since I used the HiDPI marker version this compensates for the 2x size */
+    pointer-events: none; /* This disables clicks on the marker. Not fully supported by all major browsers, though */
+  }
+  #centerMarker1 {
+    width: 20px;
+    height: 30px;
+    display: block;
+    content: ' ';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -40px 0 0 -11px;
+    background: url(../assets/icon/target.png);
+    background-size: 20px 30px; /* Since I used the HiDPI marker version this compensates for the 2x size */
+    pointer-events: none; /* This disables clicks on the marker. Not fully supported by all major browsers, though */
+  }
+  .button-ios {
+    font-size: 1.2rem;
+  }
+  .ion-ios-text {
+    top: -15%;
+  }
+  .searchbars {
+    top: -20px;
+    width: 104%;
+    left: -1.5%;
+    background-color: transparent;
+    }
+    .searchbar-md .searchbar-search-icon {
+      background: url(../assets/icon/icon_pickup.png);
+      top: 5px;
+      left: 17px;
+      background-size: 15px 20px;
+      background-repeat: no-repeat;
+  }
+  .searchbar-ios .searchbar-search-icon {
+    background: url(../assets/icon/icon_pickup.png);
+    top: 5px;
+    background-size: 12px 17px;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
+  }
+  .searchbar-md .searchbar-input{
+    background-color: white;
+    border-radius: 7px;
+    height: 35px;
+    font-size: 0.9em;
+    padding-left: 43px;
+    padding-right: 40px;
+  }
+  .searchbar-md .searchbar-clear-icon {
+    // background-image: none;
+    position: absolute;
+    top: 0;
+    right: 25px;
+    padding: 0;
+    width: 22px;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 22px;
+}
+
+.searchbar-ios .searchbar-input {
+  width: 100%;
+  height: 3.2rem;
+}
+  
+}
+
+.toolbar-background-md {
+  border-color: #b2b2b2;
+  background: url(../assets/img/background_header.png);
+}
+
+.item-ios p {
+  margin: 0 0 2px 20px;
+}
+
+.alert-md .alert-title {
+  font-size: 1.2em;
+}
+
+.list-md .item-input.ng-invalid.ng-touched:not(.input-has-focus):last-child {
+  border-bottom-color: white;
+  box-shadow: inset 0 -1px 0 0 white;
+}
+#gmnoprint .img {
+  background: url(../assets/icon/icon_pickup.png);
+  top: 5px;
+  left: 13px;
+  background-size: 15px 20px;
+  background-repeat: no-repeat;
+}
+
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  right: 5px;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: 'Roboto','sans-serif';
+  line-height: 30px;
+  padding-left: 10px;
+}
+#map {
+  height: 100%;
+}

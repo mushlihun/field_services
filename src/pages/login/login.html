@@ -1,0 +1,25 @@
+<ion-content>
+  <div class="login-header">
+      <img src="assets/img/background_login.png">
+    </div>
+    <div class="login-header1">
+        <img class="logo" src="assets/icon/favicon.png">
+      </div>
+      <div class="head"> 
+      <h4>ARMADA MAS</h4>
+      </div>
+  <div class="login-header2">
+      <img src="assets/img/app_title.png">
+  </div>
+  <div bottom padding class="login-info">
+      <form [formGroup]="loginForm" (submit)="doLogin()">
+      <ion-item>
+        <ion-input type="username" formControlName="username" placeholder="Username" name="username" required="required"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input type="password" formControlName="password" placeholder="Password" name="password" required="required"></ion-input>
+      </ion-item>
+              <button class= "btn-login" ion-button full color="primary" type="submit">LOGIN</button>
+      </form>
+  </div>
+</ion-content>

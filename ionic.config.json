@@ -1,0 +1,8 @@
+{
+  "name": "Armada User",
+  "app_id": "",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular"
+}

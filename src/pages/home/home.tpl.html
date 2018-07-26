@@ -1,0 +1,95 @@
+<ion-content scroll="false" class="map-page">
+  <!-- <it-map (onMapReady)="onMapReady();" (onDragStart)="onDragStart()"></it-map> -->
+  <it-map (onMapReady)="onMapReady();"></it-map>
+  <div id="centerMarker" *ngIf="localized"></div>
+  
+<!-- <div class="formorder" *ngIf="orderTowait"> -->
+  <ion-fab top class="headform">
+      <ion-list no-lines>
+        <!-- <form [formGroup]="form" (ngSubmit)="direct(form.value, form.valid)"> -->
+        <button ion-button no-lines no-border class="form"  >
+        <ion-item class="input1">
+        <ion-label><ion-icon name="locate" class="icon-locate"></ion-icon></ion-label>
+        <ion-input [readonly]="isReadonly" [(ngModel)]="departure" class="inputext" type="text" placeholder="Keberangkatan"></ion-input>
+        </ion-item>
+        </button>
+        <button ion-button no-lines no-border class="form" *ngIf="onSuccess">
+        <!-- <button ion-button no-lines no-border class="form"> -->
+        <ion-item class="input2">
+            <ion-label><ion-icon name="pin" class="icon-pin"></ion-icon></ion-label>
+            <ion-input [readonly]="isReadonly" [(ngModel)]="destination" class="inputext" type="text" placeholder=""></ion-input>
+        </ion-item>
+        </button>
+        <div (change)="calculateAndDisplayRoute()" *ngIf="orderTowait">
+        <ion-searchbar (ionInput)="initAutocomplete($event)"
+        autocomplete="on" autocorrect="on" autocapitalize="off" spellcheck="off" name="pin" 
+        class="searchbars" #searchbar
+        placeholder="Tujuan"></ion-searchbar>
+      </div>
+        <button *ngIf="orderTowait" no-line ion-button no-border class="note1" (click)="doNote()">
+          <ion-icon name="text" class="icon-text"></ion-icon>
+        </button>
+        <!-- </form> -->
+        </ion-list>
+</ion-fab>
+<!-- </div> -->
+<div *ngIf="orderTowait">
+    <ion-fab full bottom text-center class="fullorder">
+        <ion-label>
+        </ion-label>  
+    </ion-fab>
+  <ion-fab round left bottom class="btn-order">
+      <button ion-button full [disabled]="oneclick" (click)="directs()"><p>DIRECT</p></button>
+  </ion-fab>
+  <ion-fab round right bottom class="btn-order">
+  <button ion-button full (click)="goToSchedule()"><p>SCHEDULE</p></button>
+  </ion-fab>
+</div>
+  <!-- <div *ngIf="waiting" class="bottom">
+      <div class="text" text-center>
+          <ion-spinner name="crescent"></ion-spinner>
+          Finding A Driver
+       </div>
+  <button class="gutton" ion-item color="primary" (click)="cancelRequest()">
+    Cancel Request
+  </button>
+  </div> -->
+  <div *ngIf="onSuccess">
+      <ion-fab full bottom text-center class="plat">
+          <ion-label center>
+                {{plate}}
+          </ion-label>  
+      </ion-fab>
+    <ion-fab full bottom class="card-id">
+        <ion-card class="identity">
+            <ion-item class="identity2">
+              <ion-icon class="people" name="people" item-left small ></ion-icon>
+              <!-- <ion-label [(ngModel)]="full_name">{{full_name}}</ion-label> -->
+              <p>{{title}} {{drivername}}</p>
+              <ion-icon class="car" name="car" item-left small ></ion-icon>
+              <p>Direct</p>
+              <ion-icon class="text" name="text" item-left small ></ion-icon>
+              <!-- <p>{{note}}</p> -->
+              <p>{{statustrip}}</p>
+              <ion-note><h1>{{waktu}}</h1><p text-right>away</p></ion-note> 
+              <!-- <ion-note><h1>{{time}}</h1><p text-right>away</p></ion-note>  -->
+              <!-- <ion-note><h1>3</h1><p text-right>min away</p></ion-note>    -->
+            </ion-item>
+        </ion-card>  
+    </ion-fab>  
+    
+      <ion-fab round left bottom class="btn-order">
+        <button ion-button full (click)="doCall()" class="contact">
+          <ion-icon name="call"></ion-icon>
+          <p>CALL DRIVER</p>
+        </button>
+      </ion-fab>
+      <ion-fab round right bottom class="btn-order">
+      <button ion-button full (click)="canceltrip()" [disabled]="onstarted=='onstart'" class="cancel">
+        <ion-icon name="close-circle"></ion-icon>
+        <p>CANCEL TRIP</p>
+      </button>
+      </ion-fab>
+    </div>
+
+</ion-content>

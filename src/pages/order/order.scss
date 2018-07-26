@@ -1,0 +1,76 @@
+.icon-locate {
+  color: turquoise;
+  left: 4%;
+}
+.icon-pin {
+  color: steelblue;
+}
+.orders {
+  width: 95%;
+}
+.order-header {
+  background-color: #434954;
+  padding: 16px;
+  width: 100%;
+  min-height: 150px;
+  text-align: center;
+}
+
+.order-header img {
+  max-width: 200px;
+  min-height: 115px;
+  margin-left: -15px;
+  padding: 25px 0 20px 0;
+}
+
+.order-info p {
+  color: #697072;
+  text-align: left;
+}
+
+.order-info ion-icon {
+  color: color($colors, primary);
+  width: 20px;
+}
+.card-ios p {
+  margin: -20px 0 10px 17px;
+}
+.md,
+.wp {
+  .order-info [text-right] {
+    margin-right: 0;
+  }
+}
+
+.ios .order-info {
+  text-align: center;
+}
+
+.ios .order-info ion-icon {
+  width: auto;
+  margin-right: 10px;
+}
+.headerorder {
+  width: 100%;
+}
+.segment {
+  background-color: white;
+}
+.segment-md-primary .segment-button.activated, .segment-md-primary .segment-button.segment-activated {
+  border-color: #478aff;
+  color: #478aff;
+  opacity: 1;
+  background-color: #092d4b;
+}
+.segment-md-primary .segment-button{
+  color: black;
+}
+.tanggal {
+  color: #478aff !important;
+}
+.date {
+  margin: -4% 1% 5% 1%;
+}
+.card-md .pas{
+  margin: -6% 0 0 7%;
+}

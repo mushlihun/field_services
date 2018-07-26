@@ -1,0 +1,63 @@
+  .profile {
+    color: blue;
+}
+.profile-info {
+    width: 95%;
+    margin-left: 5px;
+    .item-md.item-input.input-has-focus .item-inner {
+      border-bottom-color: dimgray;
+      box-shadow: inset 0 -1px 0 0 dimgrey;
+    }
+    
+    .list-md .item-input.input-has-focus:last-child {
+      border-bottom-color: dimgray;
+      box-shadow: inset 0 -1px 0 0 dimgrey;
+    }
+    
+    .item-md.item-input.ng-valid.input-has-value:not(.input-has-focus) .item-inner {
+      border-bottom-color: dimgray;
+      box-shadow: inset 0 -1px 0 0 dimgrey;
+    }
+    
+    .list-md .item-input.ng-valid.input-has-value:not(.input-has-focus):last-child {
+      border-bottom-color: dimgray;
+      box-shadow: inset 0 -1px 0 0 dimgrey;
+    }
+    
+}
+.button-full-md {
+    margin-right: 0px;
+    margin-left: 0px;
+    border-right-width: 0px;
+    border-left-width: 0px;
+    border-radius: 7px;
+  }
+  .change {
+    width: 100%;
+    height: 21%;
+    padding-right: 2.8em;
+    padding-left: 2.4em;
+    bottom: 17px !important;
+  } 
+  
+  .logout {
+    width: 100%;
+    height: 12%;
+    padding-right: 2.8em;
+    padding-left: 2.4em;
+  }
+  .toolbar-background-md {
+    border-color: #b2b2b2;
+    background: url(../assets/img/background_header.png);
+  }
+  .button-full-ios {
+    border-radius: 7px;
+    height: 35px;
+    font-size: 1.2rem;
+  }
+  .item-divider-ios {
+    background-color: #ffffff;
+  }
+  .label {
+    font-size: 0.8em;
+  }

@@ -1,0 +1,187 @@
+.button-full-md {
+  margin-right: 0px;
+  margin-left: 0px;
+  border-right-width: 0px;
+  border-left-width: 0px;
+  border-radius: 7px;
+}
+.md,
+.wp {
+  .login-info [text-right] {
+    margin-right: 0;
+  }
+}
+
+.ios .login-info {
+  text-align: center;
+}
+
+.ios .login-info ion-icon {
+  width: auto;
+  margin-right: 10px;
+}
+
+.rating li {
+  padding: 5px 10px !important;
+  background: none;
+  color: color($colors, primary, base);
+}
+
+.vertical-align-content > *
+{
+     display: flex!important;
+     align-content: center!important;
+     align-items: center!important;
+}
+.feedback-header {
+  //background-color: #17387c;
+  width: 100%;
+  min-height: 0px;
+  text-align: center;
+}
+
+.feedback-header img {
+  //max-width: 100%;
+  //min-height: 55px;
+  height: 30%;
+  width : 100%;
+}
+
+.feedback-header2 {
+  background-color: #17387c;
+  width: 100%;
+  min-height: 0px;
+  padding-top: -20%;
+  text-align: center;
+}
+
+.icon-locate {
+  color: turquoise;
+  left: 4%;
+}
+
+.icon-pin {
+  color: rgb(51, 170, 22);
+}
+
+.button-full-md {
+  margin-right: 0px;
+  margin-left: 0px;
+  border-right-width: 0px;
+  border-left-width: 0px;
+  border-radius: 7px;
+}
+
+.close {
+  width: 88%;
+  height: 17%;
+  font-size: 12px;
+  padding-left: 6%;
+}
+
+.trip{
+  width: 40%;
+  position: absolute;
+}
+.km{
+  width: 42%;
+ margin-left: 55%;
+}
+.card1{
+  left: 10px;
+}
+.strip{
+  color:rgb(4, 4, 61);
+}
+.feedback-info {
+  font-size : 12sem;
+  padding-right: 25px;
+  padding-left: 2.5em;
+  //background-image: url(../assets/img/background_gray.png);
+  //background-color: rgb(235, 231, 231);
+  height: auto;
+}
+.info{
+  margin-top: 10px;
+}
+.namedriver {
+  text-transform: capitalize;
+}
+.pick{
+  color : black;
+  font-size: 1.2rem;
+}
+.pickup {
+    width: 100px; 
+    overflow: hidden;
+    text-overflow:ellipsis;
+    word-wrap: break-word;
+}
+.pickup:hover {
+  overflow: visible;
+}
+
+.toolbar-title-md {
+  //padding: 0 0 0 25% !important;
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: #fff;
+}
+.feedback-info p {
+  color: #6d8288;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+.feedback-info ion-icon {
+  color: color($colors, primary);
+  width: 20px;
+  font-size: 2.5em;
+}
+
+.md,
+.wp {
+  .feedback-info [text-right] {
+    margin-right: 0;
+  }
+}
+
+.ios .feedback-info {
+  text-align: center;
+}
+
+.ios .feedback-info ion-icon {
+  width: auto;
+  margin-right: 10px;
+}
+.komen {
+  padding-left: 10px;
+  width: 97%;
+  margin-bottom: 5%;
+}
+
+ion-icon {
+  &[class*="appname-"] {
+      // Instead of using the font-based icons
+      // We're applying SVG masks
+      mask-size: contain;
+      mask-position: 50% 50%;
+      mask-repeat: no-repeat;
+      background: currentColor;
+      width: 1.2em;
+      height: 1.2em;
+  }
+  // custom icons
+  &[class*="appname-pickup"] {
+      background: url(../assets/img/icon_pickup.png);
+      background-size: 40px 20px;
+  }
+  &[class*="appname-dropoff"] {
+      background: url(../assets/img/icon_dropoff.png);
+      background-size: 20px 20px;
+  }
+  &[class*="appname-user"] {
+      background: url(../assets/img/icon_user.png);
+      background-size: 16px 16px;
+  }
+}
