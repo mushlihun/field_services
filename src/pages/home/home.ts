@@ -27,6 +27,7 @@ import { MAX_LENGTH_VALIDATOR } from '@angular/forms/src/directives/validators';
 import { dateDataSortValue } from 'ionic-angular/util/datetime-util';
 import { SMS } from '@ionic-native/sms';
 declare var google: any;
+declare var window;
 @Component({
   templateUrl: 'home.tpl.html',
   providers: [AuthService, DataServiceProvider]
@@ -37,11 +38,13 @@ export class HomePage extends BasePage {
   @ViewChild('searchbar', {read: ElementRef}) searchbar: ElementRef;
   form: FormGroup;
   position: google.maps.LatLng;
-  departure: string = null;
+  departure: any;
+  departures: string = null;
   destination: string = null;
   destinations: any = null;
   start = 'chicago, il';
   end = 'chicago, il';
+  ordered = 'checked';
   localized: boolean = false;
   orderTowait: boolean = true;
   waiting: boolean = false;
@@ -66,12 +69,13 @@ export class HomePage extends BasePage {
   iddriver: any;
   drivername: any;
   gender: any;
-  availableDrivers: any;
+  availableDrivers: any = [];
+  availableDrivers2: any;
   title: any;
   jarak: any;
   seconds: any;
-  latitude: any;
-  longitude: any;
+  driverlatitude: any;
+  driverlongitude: any;
   deplat: any;
   deplng: any;
   deslat: any;
@@ -80,6 +84,7 @@ export class HomePage extends BasePage {
   acctoken: any;
   time: any;
   calldriver: any;
+  callno: any;
   // tslint:disable-next-line:variable-name
   passenger_id: any;
   // tslint:disable-next-line:variable-name
@@ -93,6 +98,7 @@ export class HomePage extends BasePage {
   tripstart: any;
   tripend: any;
   datapoint: any = [];
+  waypointid: any;
   latlng: any;
   pushnot: any = [];
   tokendriver: any;
@@ -108,6 +114,7 @@ export class HomePage extends BasePage {
   searchQuery: any;
   waktu: any;
   iduser: any;
+  eta: any;
   public onstarted: any = 'onwaiting';
   public nearbyPlaces: Array<any> = [];
   public number: any;
@@ -144,6 +151,9 @@ export class HomePage extends BasePage {
     super(alertCtrl);
   }
   ionViewWillEnter() {
+    this.isOrdered();
+    this.isFinishorderd();
+    // this.isOnwaiting();
     this.backgroundMode.enable();
     if (typeof FCMPlugin !== 'undefined') {
     this.fcm.getToken().then(token => {
@@ -152,8 +162,6 @@ export class HomePage extends BasePage {
     console.log(res);
     this.tokenid = res[0];
     this.userid = res[1];
-    console.log('this.tokenid: ', this.tokenid);
-    console.log('this.userid: ', this.userid);
     });
     this.tokenfcm = token;
     let tokenfcm = token;
@@ -174,10 +182,36 @@ export class HomePage extends BasePage {
       });
     this.fcm.onNotification().subscribe(data => {
     console.log('tes:' + JSON.stringify(data));
-    let statusfcm = data;
+    this.storage.set('datafcm', data);
+    let status = '';
+    for (let key in data) {
+    if (key === 'status') {
+        status = data[key];
+        }
+      }
+    if (status === 'onstart') {
+    this.onstarte('ontransport');
+    console.log('jalan onstarte1');
+      } else if (status ===  'oncompleted') {
+    this.oncompleted();
+    console.log('jalan oncompleted1');
+      }
     console.log('tes:' + data.wasTapped);
     if (data.wasTapped) {
       console.log('Received in background');
+      let status = '';
+      for (let key in data) {
+      if (key === 'status') {
+          status = data[key];
+          }
+        }
+      if (status === 'onstart') {
+      this.onstarte('ontransport');
+      console.log('jalan onstarte2');
+        } else if (status ===  'oncompleted') {
+      this.oncompleted();
+      console.log('jalan oncompleted2');
+        }
       } else {
       let status = '';
       for (let key in data) {
@@ -186,39 +220,177 @@ export class HomePage extends BasePage {
           }
         }
       if (status === 'onstart') {
-      this.onstarte('onstart');
-      console.log('jalan onstarte');
+      this.onstarte('ontransport');
+      console.log('jalan onstarte3');
         } else if (status ===  'oncompleted') {
       this.oncompleted();
-      console.log('jalan oncompleted');
+      console.log('jalan oncompleted3');
         }
       console.log('Received in foreground');
         }
-        // this.dataservice.trips(token, 433).subscribe((datas) => {
-        //   let myInterval = setInterval(() => {
-        //   // this.presentRouteLoader('Waiting...');
-        //   // this.nav.setRoot('PhonePage');
-        //   if (datas.trip.status === 'ontransport') {
-        //   // this.ontrips = true;
-        //   clearInterval(myInterval);
-        //   } else if (datas.trips.status === 'oncompleted') {
-        //     // this.nav.push(FeedbackPage);
-        //   }
-        // }, 1000);
-        //     });
           });
         });
       }
   }
   ionViewDidLoad() {
   }
-  ionViewDidEnter() {
+  isOrdered() {
+    console.log('this.isOrdered(homepage);');
+    this.storage.get('ordered').then((ordered) => {
+    console.log('isOrdered(homepage);', ordered);
+    if (ordered === true) {
+      this.isOnwaiting();
+      console.log('masuk halaman direct1');
+     } else if (ordered === null) {
+      console.log('tidak order');
+          }
+      });
+    }
+  isOnwaiting() {
+    console.log('this.isOnwaiting();');
     Promise.all([this.storage.get('access_token'), this.storage.get('user_id')]).then((res) => {
-      console.log('access_token2', res[0]);
       this.tokenid = res[0];
-      console.log('user_id2', res[1]);
       this.userid = res[1];
     });
+    this.storage.get('waypointid').then((waypointid) => {
+    if (waypointid === null) {
+    console.log('waypointid kosong');
+    } else {
+    this.orderTowait = false;
+    this.onSuccess = true;
+    // this.storage.get('statustrip').then((tripstatus) => {
+    this.dataservice.waypointx(this.tokenid, waypointid).subscribe((datas) => {
+    this.departures = datas.waypoint.pickup_location;
+    this.destination = datas.waypoint.dropoff_location;
+    this.directionsService = new google.maps.DirectionsService;
+    console.log('origin : ' + this.departures);
+    console.log('destination : ' + this.destination);
+    this.directionsService.route({
+      origin: this.departures,
+      destination: this.destination,
+      travelMode: 'DRIVING'
+    }, (response, status) => {
+      console.log(response);
+      // if (status === 'OK') {
+      if (status === google.maps.DirectionsStatus.OK) {
+        console.log('data distance', response.routes[0].legs[0].distance);
+        console.log('data duration', response.routes[0].legs[0].duration);
+        let vtimes = response.routes[0].legs[0].duration.value;
+        this.getEstimatedTimeOfArrival2(vtimes);
+        console.log('distancesssss', vtimes);
+        console.log('distancesssss', vtimes);
+        let route = response.routes[0].legs[0];
+        // this.mapService.createMarker(route.start_location);
+        this.mapService.createMarker1(route.end_location);
+        this.mapService.directions(response);
+      } else {
+        // window.alert('Directions request failed due to ' + status);
+      }
+    });
+  });
+    this.storage.get('wpickup_location').then((wpickup) => {
+    this.departure = wpickup;
+    });
+    this.storage.get('wdropoff_location').then((wdropoff) => {
+    this.destination = wdropoff;
+    });
+    this.storage.get('drivername').then((name) => {
+    console.log('name : ' + name);
+    this.drivername = name;
+    });
+    this.storage.get('gender').then((genders) => {
+    this.gender = genders;
+    if (this.gender === 'Male') {
+      this.title = 'Mr.';
+    } else {
+      this.title = 'Mrs.';
+    }
+  });
+    this.storage.get('noted').then((noted) => {
+      console.log('noted : ' + noted);
+      this.note = noted;
+    });
+    this.storage.get('waktus').then((waktus) => {
+      console.log('waktus : ' + waktus);
+      this.waktu = waktus;
+    });
+    this.storage.get('plates').then((plates) => {
+      console.log('plates : ' + plates);
+      this.plate = plates;
+    });
+    this.storage.get('tripid').then((tripid) => {
+      console.log('tripid isOnwaiting: ' + tripid);
+      this.trip = tripid;
+    });
+    this.dataservice.trip(this.tokenid, this.trip).subscribe((data) => {
+      console.log('data trip di waiting : ' + data.trip);
+      let tripstatus = data.trip.status;
+      if (tripstatus === 'ontransport') {
+        this.onstarted = 'ontransport';
+        console.log('lagi dijalan', tripstatus);
+      } else if (tripstatus === 'oncompleted') {
+        console.log('udh masuk ke feedback', tripstatus);
+        this.oncompleted();
+      } else if (tripstatus === 'onwaiting') {
+        console.log('masih nunggu driver', tripstatus);
+        this.nav.push(DirectPage);
+      }
+    });
+
+  } // else waypoint ada
+      });
+    this.storage.get('waypointid').then((waypointid) => {
+    if (waypointid === null) {
+    console.log('waypointid kosong tetap di tabspage');
+    } else {
+    console.log('masuk halaman direct');
+    this.nav.push(DirectPage);
+  }
+      });
+  }
+  isFinishorderd() {
+  Promise.all([this.storage.get('access_token'), this.storage.get('user_id')]).then((res) => {
+    this.tokenid = res[0];
+    this.userid = res[1];
+  });
+  this.storage.get('feedbackPage').then((feedback) => {
+  console.log('masuk ke feedback isFinishorderd: ' + feedback);
+  if (feedback === true) {
+  this.nav.push(FeedbackPage);
+  } else if (feedback === null) {
+    console.log('tidak ada feedback', feedback);
+  }
+  });
+  this.storage.get('tripid').then((tripid) => {
+  console.log('masuk ke feedback isFinishorderd: tripid : ' + tripid);
+  if (tripid === null) {
+  console.log('stay aja : ' + tripid);
+  } else if (tripid !== null) {
+    this.storage.get('access_token').then((res) => {
+      this.tokenid = res;
+    });
+    this.dataservice.trip(this.tokenid, tripid).subscribe((data) => {
+    console.log('data trip di isFinishorderd : ' + JSON.stringify(data));
+    this.statustrip = data.trip.status;
+    console.log('statustrip', this.statustrip);
+    // this.tripsid = data.trip.id;
+    if (this.statustrip === 'oncompleted' ) {
+      console.log('go feedback isFinishorderd : ' + tripid);
+      this.nav.push(FeedbackPage);
+    } else if (this.statustrip === 'ontransport' ) {
+      this.onstarted = 'onstarted';
+      console.log('stay aja isFinishorderd : ' + tripid);
+    } else if (this.statustrip === 'onwaiting') {
+      console.log('masih nunggu driver', this.statustrip);
+      this.nav.push(DirectPage);
+    }
+  }, (err) => {
+    console.log(err);
+  });
+  }
+  });
+  }
+  ionViewDidEnter() {
   }
   /***
    * This event is fired when map has fully loaded
@@ -231,33 +403,27 @@ export class HomePage extends BasePage {
         if (this.position) {
           this.deplat = this.position.lat();
           this.deplng = this.position.lng();
-          // this.mapService.addMarkersToMap(this.deplat, this.deplng);
+          this.mapService.addMarkersToMap(this.position.lat(), this.position.lng());
+          this.geocoderService.addressForlatLng(this.position.lat(), this.position.lng())
+          .subscribe((address: string) => {
+          this.departure = address;
+          console.log('departure' + this.position);
+            }, (error) => {
+              this.displayErrorAlert();
+              console.error(error);
+            });
           // let cobamaps = new google.maps.Latlng(59.33, 18.05);
           // this.mapService.createMarker(59.33, 18.05);
           console.log('data', this.deplat, this.deplng);
         }
+        // this.mapService.removeMarker(this.position);
         this.keberangkatan();
-        this.initAutocomplete();
+        // this.initAutocomplete();
         const mapElement: Element = this.mapService.mapElement;
         if (mapElement) {
           mapElement.classList.add('show-map');
           this.mapService.resizeMap();
         }
-        // this.position = this.mapService.mapCenter;
-
-        // if (this.position) {
-        //   this.deplat = this.position.lat();
-        //   this.deplng = this.position.lng();
-        //   this.mapService.addMarkersToMap(this.deplat, this.deplng);
-        //   this.geocoderService.addressForlatLng(this.position.lat(), this.position.lng())
-        //     .subscribe((address: string) => {
-        //       this.departure = address;
-        //       console.log('departure' + this.position);
-        //     }, (error) => {
-        //       this.displayErrorAlert();
-        //       console.error(error);
-        //     });
-        // }
       });
     });
   }
@@ -288,6 +454,7 @@ export class HomePage extends BasePage {
       this.geocoderService.addressForlatLng(this.position.lat(), this.position.lng())
         .subscribe((address: string) => {
           this.destination = address;
+          // this.mapService.addMarkersToMap(this.position.lat(), this.position.lng());
           // this.calculateAndDisplayRoute(desti);
         }, (error) => {
           this.displayErrorAlert();
@@ -301,22 +468,21 @@ keberangkatan(): void {
   if (this.position) {
     this.deplat = this.position.lat();
     this.deplng = this.position.lng();
-    // this.mapService.addMarkersToMap(this.deplat, this.deplng);
     this.geocoderService.addressForlatLng(this.position.lat(), this.position.lng())
         .subscribe((address: string) => {
-         this.departure = address;
-         this.storage.set('departures', address);
-         console.log('departure' + this.position);
-            }, (error) => {
-              this.displayErrorAlert();
-              console.error(error);
-            });
-        }
+        this.initAutocomplete();
+        this.departure = address;
+        console.log('departure' + this.position);
+          }, (error) => {
+            this.displayErrorAlert();
+            console.error(error);
+          });
+      }
 }
   // tslint:disable-next-line:max-line-length
-  direct(model: OrderModel, orderTowait: boolean, onSuccess: boolean, ontrips: boolean, endtrip: boolean, oneclick: boolean) {
-    this.oneclick = true;
+  direct(orderTowait: boolean, onSuccess: boolean, ontrips: boolean, endtrip: boolean, oneclick: boolean) {
     this.presentRouteLoader('Tunggu sebentar ...');
+    if (this.destination !== null) {
     this.fcmtoken = {
       user: {
       token : this.tokenfcm
@@ -331,252 +497,42 @@ keberangkatan(): void {
       }, (err) => {
     console.log('gagal update token', err);
       });
-    this.presentRouteLoader('Waiting...');
     console.log('telah waiting');
-    this.getassignedDriver();
-    let getAssignedDriverTask = this.getassignedDriver();
-    if (getAssignedDriverTask !== undefined) {
-      console.log(getAssignedDriverTask);
-      let listassigndriver = this.getassignedDriver;
-      if (listassigndriver != null) {
-    console.log('telah waiting');
-    // buka command sini
-    Promise.all([this.storage.get('access_token')]).then((res) => {
-        this.auth.getDriver(res[0]).subscribe((data) => {
-          if (data.drivers.length === 0) {
-          this.drivernot();
-          this.globalService.toastInfo('Belum ada pengemudi yang tersedia', 3000, 'bottom');
+    // this.getassignedDriver();
+    this.getAvailableDrivers();
+} else {
+    let confirm = this.alertCtrl.create({
+      title: 'Peringatan!',
+      message: 'Apakah anda yakin sudah mengisi perjalanan anda? Klik Ok untuk mengisi tujuan?',
+      buttons: [
+        {
+          text: 'Ok',
+          handler: () => {
+            console.log('Isi tujuan');
           }
-          Vibration.vibrate(1000);
-          console.log(data);
-          this.orderTowait = true;
-          // this.ontrips = true;
-          if (data.drivers && data.drivers.length > 0) {
-            this.drivers = data.drivers;
-            this.drivers.push({showDetails: false});
-            this.driverid = this.drivers[0].user_id;
-            this.iddriver = this.drivers[0].id;
-            this.status = this.drivers[0].status;
-            this.latitude = this.drivers[0].latitude;
-            this.longitude = this.drivers[0].longitude;
-            this.jarak = this.drivers[0].mileage;
-            this.waktu = this.getEstimatedTimeOfArrival(this.jarak);
-            this.storage.set('waktus', this.getEstimatedTimeOfArrival(this.jarak) );
-            console.log(this.jarak);
-            console.log(this.getEstimatedTimeOfArrival(this.jarak));
-            for (let i = 0; i < data.drivers.length - 1; i++) {
-              // tslint:disable-next-line:radix
-              this.driverid = parseInt(this.drivers[i].user_id);
-            }
-          }
-          this.dataservice.getUser(this.tokenid, this.driverid).subscribe((result) => {
-          this.orderTowait = false;
-          this.onSuccess = true;
-          console.log(result);
-          Vibration.vibrate(1000);
-          this.storage.set('drivername', result.user.full_name);
-          this.storage.set('gender', result.user.gender);
-          this.drivername =  result.user.full_name;
-          this.tokendriver = result.user.token;
-          this.calldriver = result.user.phone_number;
-          this.gender = result.user.gender;
-          if (this.gender === 'Male') {
-            this.title = 'Mr.';
-          } else {
-            this.title = 'Mrs.';
-          }
+        }
+      ]
+    });
+    confirm.present();
+  }
 
-    //       // this.driver.status =  'available';
-          this.dataservice.vehicles(this.tokenid, this.driverid).subscribe((vehicle) => {
-            console.log(vehicle);
-            if (vehicle.vehicles && vehicle.vehicles.length) {
-              this.plat = vehicle.vehicles;
-              this.plate = this.plat[0].license_plate;
-              this.storage.set('plates', this.plat[0].license_plate);
-            }
-          }, (err) => {
-            console.log(err);
-          });
-          this.status = {
-              driver: {
-                status : 'ontrip'
-              }
-          // tslint:disable-next-line:semicolon
-          }
-          console.log('update status', this.status);
-          this.dataservice.createstatus(this.tokenid, this.status, this.iddriver).subscribe((resu) => {
-            console.log('update status', resu);
-          }, (err) => {
-            console.log(err);
-          });
-// buka command sini
-          this.trip = {
-            'trip[a]' : '',
-            'trip[passenger_id]' : this.userid,
-            'trip[driver_id]' : this.driverid,
-            'trip[information]' : this.note,
-            'trip[status]' : 'onwaiting',
-            'trip[b]' : ''
-          };
-          console.log(this.trip);
-          // tslint:disable-next-line:no-shadowed-variable
-          this.dataservice.createtrips(this.tokenid, this.trip).subscribe((trips) => {
-            console.log(trips);
-            this.storage.set('trip_id', trips.id);
-            this.storage.set('statustrip', trips.status);
-            this.tripid = trips.id;
-            this.statustrip = trips.status;
-            this.tripstart = trips.created_at;
-            this.tripend = trips.updated_at;
-            this.datapoint = {
-              'waypoint[a]' : '',
-              'waypoint[trip_id]' : this.tripid,
-              'waypoint[pickup_location]' : this.departure,
-              'waypoint[pickup_lat]' : this.position.lat(),
-              'waypoint[pickup_lng]' : this.position.lng(),
-              'waypoint[dropoff_location]' : this.addressElement.value,
-              'waypoint[dropoff_lat]' : this.deslat,
-              'waypoint[dropoff_lng]' : this.deslng,
-              'waypoint[sequence]' : '1',
-              'waypoint[mileage]' : '0',
-              'waypoint[start_time]' : this.tripstart,
-              'waypoint[end_time]' : this.tripend,
-              'waypoint[updated_at]' : this.tripstart,
-              'waypoint[created_at]' : this.tripend,
-              'waypoint[checkpoints]' : '',
-              'waypoint[b]' : ''
-            };
-            console.log(this.datapoint);
-            console.log(JSON.stringify(this.datapoint));
-            console.log('Sukses create trips');
-            // this.dataservice.waypoint(this.tokenid, this.datapoint).subscribe((waypoints) => {
-            //   console.log(waypoints);
-            //   this.push = {
-            //       'notification[a]' : '',
-            //       'notification[b]' : ''
-            //     };
-            //   this.push = {
-            //       'payloads[a]' : '',
-            //       'notification[title]' : '',
-            //       'notification[body]' : '',
-            //       'notification[sound]' : '',
-            //       'payloads[title]' : 'Order',
-            //       'payloads[message]' : '',
-            //       'payloads[trip_id]' : this.tripid,
-            //       'payloads[passenger_id]' : this.userid,
-            //       'payloads[driver_id]' : this.driverid,
-            //       'payloads[information]' : this.note,
-            //       'payloads[pickup_location]' : this.departure,
-            //       'payloads[pickup_lat]' : this.position.lat(),
-            //       'payloads[pickup_lng]' : this.position.lng(),
-            //       'payloads[dropoff_location]' : this.addressElement.value,
-            //       'payloads[dropoff_lat]' : this.deslat,
-            //       'payloads[dropoff_lng]' : this.deslng,
-            //       'payloads[status]' : 'ondispatch',
-            //       'payloads[b]' : ''
-            //     };
-            //   this.pushnotif(this.push);
-            //   console.log('Sukses waypoint');
-            // }, (err) => {
-            //   console.log(err);
-            // });
-            this.waypoint(this.datapoint);
-            console.log('lanjut waypoint');
-          }, (err) => {
-            console.log(err);
-          });
-        }, (err) => {
-          console.log(err);
-        });
-        }, (err) => {
-          console.log(err);
-          console.log('menunggu pengemudi available');
-        });
-      }, (err) => {
-        console.log('error', err);
-        });
-    // tslint:disable-next-line:no-conditional-assignment
-    // } else if ( trips = true ) {
-
-      //   
-      //     // request data status
-      //     this.storage.set('status', data.status);
-      //     console.log(data);
-      //     Promise.all([this.storage.get('access_token')]).then((result) => {
-      //       this.dataservice.trips(res[0]).subscribe((datas) => {
-      //         // request data trips filter driver_id
-      //         this.storage.set('passenger_id', datas.trips.passenger_id);
-      //         this.storage.set('driver_id', datas.trips.driver_id);
-      //         this.storage.set('information', datas.trips.information);
-      //         this.storage.set('statuss', datas.trips.status);
-      //         console.log(datas);
-      //       }, (err) => {
-      //         console.log(err);
-      //       });
-      //       this.storage.get('statuss').then((statuss) => {
-      //         this.status = statuss; // waiting
-      //       });
-      //     }, (err) => {
-      //       console.log(err);
-      //     });
-      //   }, (err) => {
-      //     console.log(err);
-      //   });
-      //   this.storage.get('status').then((status) => {
-      //     this.status = status; // ontrip
-      //   });
-      // }, (err) => {
-      //   console.log(err);
-      // });
-    // tslint:disable-next-line:no-conditional-assignment
-    // } else if ( endtrip = true ) {
-      // Promise.all([this.storage.get('access_token')]).then((res) => {
-      //   this.dataservice.waypoint(this.datapoint, res[0]).subscribe((data) => {
-      //     // request data waypoint
-      //     this.storage.set('trip_id', data.waypoints.trip_id);
-      //     this.storage.set('pickup_location', data.waypoints.pickup_location);
-      //     this.storage.set('pickup_lat', data.waypoints.pickup_lat);
-      //     this.storage.set('pickup_long', data.waypoints.pickup_long);
-      //     this.storage.set('dropoff_location', data.waypoints.trip_id);
-      //     this.storage.set('dropoff_lat', data.waypoints.pickup_lat);
-      //     this.storage.set('dropoff_long', data.waypoints.pickup_long);
-      //     console.log(data);
-      //   }, (err) => {
-      //     console.log(err);
-      //   });
-      // }, (err) => {
-      //   console.log(err);
-      // });
-    // }
-    // if (this.returningUser = true) {
-    //   this.success();
-    //   // this.orderService.addOrder(model.departure, model.destination);
-    //   Promise.all([this.storage.get('access_token')]).then((res) => {
-    //     console.log(res);
-    //     this.dataservice.push(res[12]/*data token user*/, res[0]).subscribe((result) => {
-    //       console.log(result);
-    //       console.log(result.trips.passenger_id);
-    //     }, (err) => {
-    //       console.log(err);
-    //     });
-    //   });
-    // }
-  }}
 }
 directs() {
-  this.nav.push(DirectPage);
-  // this.orderTowait = false;
-  // this.onSuccess = true;
+  let eta = 630;
+  this.getEstimatedTimeOfArrival(eta);
+  let times = this.getEstimatedTimeOfArrival(eta);
+  console.log('times', times);
+  this.waktu = times;
 }
 
 waypoint(datapoint) {
   console.log('datapoint', JSON.stringify(datapoint));
   this.dataservice.waypoint(this.tokenid, datapoint).subscribe((waypoints) => {
-    console.log(waypoints);
-    // this.pushnot = {
-    //     'notification[a]' : '',
-    //     'notification[b]' : ''
-    //   };
+    console.log('hasil create waypoint', waypoints);
+    this.waypointid = waypoints.id;
+    this.storage.set('waypointid', waypoints.id);
+    this.storage.set('wpickup_location', waypoints.pickup_location);
+    this.storage.set('wdropoff_location', waypoints.dropoff_location);
     this.pushnot = {
         'payloads[a]' : '',
         'notification[title]' : '',
@@ -597,33 +553,6 @@ waypoint(datapoint) {
         'payloads[status]' : 'ondispatch',
         'payloads[b]' : ''
       };
-    this.pushnotif(this.pushnot);
-    // let myInterval = setInterval(() => {
-    // this.dataservice.trip(this.tokenid, this.tripid).subscribe((data) => {
-    //     this.presentRouteLoader('Waiting...');
-    //     if (data.trip.status === 'onwaiting') {
-    //       console.log('jalan onwaiting');
-    //     } else if (data.trips.status === 'ontransport') {
-    //       // this.onstarte('onstart');
-    //       this.onstarted = 'onstarted';
-    //       console.log('jalan ontransport');
-    //     } else if (data.trips.status === 'oncompleted') {
-    //     clearInterval(myInterval);
-    //     this.oncompleted();
-    //     console.log('jalan oncompleted');
-    //     }
-    //   });
-    // console.log('interval berjalan');
-    // // return myInterval;
-    // }, 5000);
-    console.log('Sukses waypoint');
-  }, (err) => {
-    console.log(err);
-  });
-}
-distance() {
-  this.auth.distance(this.departure, this.addressElement.value).subscribe((distanceMatrix) => {
-console.log(distanceMatrix.rows[0].elements[0].duration.value.ToString());
   }, (err) => {
     console.log(err);
   });
@@ -634,132 +563,61 @@ pushnotif(pushnot) {
   console.log('tokendriver', this.tokendriver);
   this.dataservice.push(this.tokenid, pushnot, this.tokendriver).subscribe((pushdata) => {
   console.log('pushdata', pushdata);
-  // if (this.statustrip === 'ontransport') {
-  // this.oncompleted();
-  //   }
   }, (err) => {
   console.log('pushnotif', err);
   });
 }
 getAvailableDrivers() {
   // filterarray berupa status
-  Promise.all([this.storage.get('access_token')]).then((res) => {
-    this.auth.getDriver(res[0]).subscribe((data) => {
-      console.log(data);
-      console.log('driver', data.drivers.users);
-      if (data === []) {
+  this.storage.get('access_token').then((res) => {
+    this.auth.getDriver(res).subscribe((data) => {
+      console.log('getAvailableDrivers', data);
+      console.log('getAvailableDrivers', data.drivers);
+      if (data.drivers.length === 0) {
+        this.drivernot();
         this.globalService.toastInfo('Belum ada driver tersedia', 3000, 'top');
-      }
-      this.auth.getDivision(res[0], 1).subscribe((datas) => {
+      } else if (data.drivers.length > 0) {
+      this.driverid = data.drivers[0].user_id;
+      this.iddriver = data.drivers[0].id;
+      this.status = data.drivers[0].status;
+      this.jarak = data.drivers[0].mileage;
+      this.driverlatitude = data.drivers[0].latitude;
+      this.driverlongitude = data.drivers[0].longitude;
+      this.storage.get('site_id').then((siteid) => {
+      console.log('siteid', siteid); // harusnya pake data ini
+      this.auth.getDivisions(res, 7).subscribe((datas) => {
         console.log(datas);
-        console.log('divisions', datas.divisions);
         for (let driverItem = 0; driverItem < data.drivers.length; driverItem++) {
           for (let divisionsItem = 0; divisionsItem < datas.divisions.length; divisionsItem++) {
-            if (data.drivers[driverItem].users.division_id === datas.divisions[divisionsItem].id) {
-              this.availableDrivers.push.apply(this.availableDrivers, data.drivers[driverItem]);
-          } console.log ('data.drivers', this.availableDrivers);
+          console.log ('data.drivers[0].users.division_id', data.drivers[0].users.division_id);
+          console.log ('data.divisions[0].id', datas.divisions[0].id);
+          if (data.drivers[0].users.division_id === datas.divisions[0].id) {
+              // this.availableDrivers.push.apply(this.availableDrivers, data.drivers[driverItem]);
+              this.availableDrivers = data.drivers;
+              this.availableDrivers2 = data.drivers[0].user_id;
+            }
           }
           console.log ('push available', this.availableDrivers);
+          console.log ('push 2', this.availableDrivers2);
+          console.log(JSON.stringify(data.drivers[driverItem]));
         }
+        this.getassignedDriver(this.availableDrivers);
       }, (err) => {
-        console.log(err);
+        console.log('error division', err);
       });
     }, (err) => {
-      this.drivernot();
       console.log(err);
-      console.log('menunggu driver available');
+    });
+      }
+    }, (err) => {
+      this.drivernot();
+      console.log('menunggu driver available', err);
     });
   }, (err) => {
     console.log(err);
   });
-  return this.availableDrivers;
+  // return this.availableDrivers;
 }
-      // if (data.drivers && data.drivers.length) {
-      //   this.drivers = data.drivers;
-      //   this.drivers.push({showDetails: false});
-      //   this.driverid = this.drivers[0].user_id;
-      //   this.status = this.drivers[0].status;
-      //   this.latitude = this.drivers[0].latitude;
-      //   this.longitude = this.drivers[0].longitude;
-      //   this.jarak = this.drivers[0].mileage;
-      //   for (let i = 0; i < data.drivers.length - 1; i++) {
-      //     // tslint:disable-next-line:radix
-      //     this.driverid = parseInt(this.drivers[i].user_id);
-      //   }
-      // }
-//       this.dataservice.getUser(res[0], this.driverid).subscribe((result) => {
-//       console.log(result);
-//       this.drivername =  result.user.full_name;
-//       this.tokendriver = result.user.token;
-
-// //       // this.driver.status =  'available';
-//       this.dataservice.vehicles(res[0], this.driverid).subscribe((vehicle) => {
-//         console.log(vehicle);
-//         if (vehicle.vehicles && vehicle.vehicles.length) {
-//           this.plat = vehicle.vehicles;
-//           this.plate = this.plat[0].license_plate;
-//         }
-//       }, (err) => {
-//         console.log(err);
-//       });
-//       // this.dataservice.createstatus(res[0], this.driver).subscribe((resu) => {
-//       //   console.log(resu);
-//         // this.trip.status = 'ontrip';
-//       // }, (err) => {
-//       //   console.log(err);
-//       // });
-// buka command sini
-//       this.trip = {
-//         'trip[a]' : '',
-//         'trip[passenger_id]' : this.userid,
-//         'trip[driver_id]' : this.driverid,
-//         'trip[information]' : this.note,
-//         'trip[status]' : 'onwaiting',
-//         'trip[b]' : ''
-//       };
-//       console.log(this.trip);
-//       // tslint:disable-next-line:no-shadowed-variable
-//       this.dataservice.createtrips(res[0], this.trip).subscribe((trips) => {
-//         console.log(trips);
-//         this.storage.set('trip_id', trips.id);
-//         this.tripid = trips.id;
-//         this.tripstart = trips.created_at;
-//         this.tripend = trips.updated_at;
-//         this.datapoint = {
-//           'waypoint[a]' : '',
-//           'waypoint[pickup_location]' : this.departure,
-//           'waypoint[pickup_lat]' : this.position.lat(),
-//           'waypoint[pickup_lng]' : this.position.lng(),
-//           'waypoint[dropoff_location]' : this.addressElement.value,
-//           'waypoint[dropoff_lat]' : this.deslat,
-//           'waypoint[dropoff_lng]' : this.deslng,
-//           'waypoint[mileage]' : '0',
-//           'waypoint[sequence]' : '1',
-//           'waypoint[trip_id]' : this.tripid,
-//           'waypoint[start_time]' : this.tripstart,
-//           'waypoint[end_time]' : this.tripend,
-//           // 'waypoint[updated_at]' : this.tripstart,
-//           // 'waypoint[created_at]' : this.tripend,
-//           'waypoint[checkpoints]' : '',
-//           'waypoint[b]' : ''
-//         };
-//         console.log(this.datapoint);
-//         this.waypoint(this.datapoint);
-//       }, (err) => {
-//         console.log(err);
-//       });
-//     }, (err) => {
-//       console.log(err);
-//     });
-//   // }, (err) => {
-//   //     this.drivernot();
-//   //     console.log(err);
-//   //     console.log('menunggu driver available');
-//   //   });
-//   }, (err) => {
-//   console.log(err);
-// });
-// }
 getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     let R = 6371; // Radius of the earth in km
     let dLat = this.deg2rad(lat2 - lat1);  // deg2rad below
@@ -779,55 +637,97 @@ getEstimatedTimeOfArrival(seconds) {
   let hours = Math.floor(seconds / 3600);
   let minutes = Math.floor(seconds / 60);
   if (hours > 1) {
-    return this.time('{0} hrs', hours);
+    // return seconds('{0} hrs', hours);
+    this.waktu = hours;
+    console.log('hours1', hours);
+    this.storage.set('waktus', hours);
     } else if (hours === 1) {
-    return this.time('{0} hr', hours);
+    console.log('hours2', hours);
+    this.storage.set('waktus', hours);
+    // return seconds('{0} hr', hours);
+    this.waktu = hours;
     } else {
     if (minutes > 3) {
-    return this.time('{0} mins', minutes);
-    } else
-    return '3 mins';
+    console.log('minutes', minutes);
+    this.waktu = minutes;
+    this.storage.set('waktus', minutes);
+    // return seconds('{0} mins', minutes);
+    } else {
+      // return '0';
+    this.waktu = '0';
+    this.storage.set('waktus', this.waktu);
+    }
+    }
+}
+getEstimatedTimeOfArrival2(seconds) {
+  let hours = Math.floor(seconds / 3600);
+  let minutes = Math.floor(seconds / 60);
+  if (hours > 1) {
+    // return seconds('{0} hrs', hours);
+    this.waktu = hours;
+    console.log('hours1', hours);
+    this.storage.set('times', hours);
+    } else if (hours === 1) {
+    console.log('hours2', hours);
+    this.storage.set('times', hours);
+    // return seconds('{0} hr', hours);
+    this.waktu = hours;
+    } else {
+    if (minutes > 3) {
+    console.log('minutesss', minutes);
+    this.waktu = minutes;
+    this.storage.set('times', minutes);
+    // return seconds('{0} mins', minutes);
+    } else {
+      // return '0';
+    this.waktu = '0';
+    this.storage.set('times', this.waktu);
+    }
     }
 }
 
-getassignedDriver() {
-  this.presentRouteLoader('Tunggu sebentar ...');
-  this.getAvailableDrivers();
-  let listdriver = this.availableDrivers;
-  console.log('listdriver', listdriver);
+getassignedDriver(availableDrivers) {
+  console.log('availaibledriver', JSON.stringify(availableDrivers));
+  // this.getAvailableDrivers();
+  let listdriver = availableDrivers;
   // list driver available
-  if (listdriver > 0) {
+  if (listdriver.length > 0) {
   let assignedIndex = 0;
   let backupIndex = 0;
   let driverCounter = 0;
   for (let driverIndex = 0; driverIndex < listdriver.length; driverIndex++) {
     let targetLocationLatitude = listdriver[driverIndex].latitude;
     let targetLocationLongitude = listdriver[driverIndex].longitude;
-    let mileages = listdriver[driverIndex].mileage;
+    this.driversmileage[driverIndex] = listdriver[driverIndex].mileage;
     console.log('targetLocationLatitude', targetLocationLatitude);
     console.log('targetLocationLongitude', targetLocationLongitude);
-    console.log('mileages', mileages);
-    // tslint:disable-next-line:no-unused-expression
+    console.log('mileages', this.driversmileage[driverIndex]);
     // tslint:disable-next-line:max-line-length
+    // this.driverdistance[driverIndex] = this.getDistanceFromLatLonInKm(this.deplat, this.deplng, targetLocationLatitude, targetLocationLongitude);
     this.driverdistance[driverIndex] = this.getDistanceFromLatLonInKm(this.deplat, this.deplng, targetLocationLatitude, targetLocationLongitude);
-    console.log(this.getDistanceFromLatLonInKm);
-    this.driversmileage[driverIndex] = this.getEstimatedTimeOfArrival(mileages);
+    console.log('distance', this.driverdistance[driverIndex]);
+    // this.driversmileage[driverIndex] = this.getEstimatedTimeOfArrival(mileages);
     if (this.driverdistance[driverIndex] <= 10000) {
+      console.log('mileages', this.driversmileage[assignedIndex]);
       if (this.driversmileage[driverIndex] === this.driversmileage[assignedIndex]) {
           if (this.driverdistance[driverIndex] < this.driverdistance[assignedIndex])
               assignedIndex = driverIndex;
+          console.log('assignedIndex', assignedIndex);
+          console.log('driverIndex', driverIndex);
       }
     // tslint:disable-next-line:one-line
-    else if (this.driversmileage[driverIndex] < this.driversmileage[this.assignedIndex])
-          this.assignedIndex = driverIndex;
+    else if (this.driversmileage[driverIndex] < this.driversmileage[assignedIndex])
+          assignedIndex = driverIndex;
+      console.log('assignedIndex2', assignedIndex);
+      console.log('driverIndex2', driverIndex);
       driverCounter++;
   }
   // tslint:disable-next-line:one-line
   else {
       if (this.driverdistance[driverIndex] <= this.driverdistance[backupIndex])
           backupIndex = driverIndex;
-  }
-
+      console.log('backupIndex', backupIndex);
+    }
   }
   // tslint:disable-next-line:no-unused-expression
   this.driver === null;
@@ -835,22 +735,195 @@ getassignedDriver() {
     if (driverCounter > 0) {
       // tslint:disable-next-line:max-line-length
       this.driver = (listdriver[assignedIndex].id, listdriver[assignedIndex].user_id, listdriver[assignedIndex].latitude, listdriver[assignedIndex].longitude, listdriver[assignedIndex].mileage, listdriver[assignedIndex].status);
+      console.log('this.driver', listdriver[assignedIndex].id);
+      console.log('this.driver1', this.driver);
+      this.listdriver(this.driver);
     } else {
     // tslint:disable-next-line:max-line-length
     this.driver = (listdriver[backupIndex].id, listdriver[backupIndex].user_id, listdriver[backupIndex].latitude, listdriver[backupIndex].longitude, listdriver[backupIndex].mileage, listdriver[backupIndex].status);
-    return this.driver;
+    console.log('this.driver2', this.driver);
+    // return this.driver;
+    this.listdriver(this.driver);
     }
   } else
     return null;
 }
+  listdriver(assignedDriver) {
+  this.storage.get('access_token').then((res) => {
+  this.tokenid = res;
+  console.log('this.driver', assignedDriver);
+  if (assignedDriver !== null) {
+    let userDetails = null;
+    let pgnMasVehicles = null;
+    this.dataservice.getUser(this.tokenid, this.availableDrivers2).subscribe((result) => {
+    this.storage.set('contact', result.user.phone_number);
+    this.storage.set('ordered', true);
+    this.orderTowait = false;
+    this.onSuccess = true;
+    console.log(result);
+    // this.presentRouteLoader('Berhasil dapat driver, tunggu sebentar ...');
+    this.findriver();
+    this.storage.set('drivername', result.user.full_name);
+    this.drivername =  result.user.full_name;
+    this.tokendriver = result.user.token;
+    this.calldriver = result.user.phone_number;
+    this.gender = result.user.gender;
+    if (this.gender === 'Male') {
+      this.title = 'Mr.';
+    } else {
+      this.title = 'Mrs.';
+    }
+    this.storage.set('gender', result.user.gender);
+      // this.driver.status =  'available';
+    this.dataservice.vehicles(this.tokenid, this.driverid).subscribe((vehicle) => {
+      console.log(vehicle);
+      if (vehicle.vehicles && vehicle.vehicles.length) {
+        this.plat = vehicle.vehicles;
+        this.plate = this.plat[0].license_plate;
+        this.storage.set('plates', this.plat[0].license_plate);
+      }
+    }, (err) => {
+      console.log(err);
+    });
+    this.status = {
+        driver: {
+          status : 'ontrip'
+        }
+    // tslint:disable-next-line:semicolon
+    }
+    this.geocoderService.addressForlatLng(this.driverlatitude, this.driverlongitude)
+        .subscribe((desti: string) => {
+        let driverlatlong = desti;
+        console.log('driverlatlong', desti);
+        console.log('this.departure.distance', this.departure);
+        this.auth.distance(driverlatlong, this.departure).subscribe((distanceMatrix) => {
+          let eta = distanceMatrix.rows[0].elements[0].duration.value;
+          this.getEstimatedTimeOfArrival(eta);
+          console.log('this.eta', eta);
+          }, (err) => {
+            console.log(err);
+          });
 
+        }, (error) => {
+          this.displayErrorAlert();
+          console.error(error);
+        });
+    this.dataservice.createstatus(this.tokenid, this.status, this.iddriver).subscribe((resu) => {
+    console.log('update status', resu);
+    this.oneclick = true;
+    // this.createtrip();
+    this.trip = {
+      'trip[a]' : '',
+      'trip[passenger_id]' : this.userid,
+      'trip[driver_id]' : this.driverid,
+      'trip[information]' : this.note,
+      'trip[status]' : 'onwaiting',
+      'trip[b]' : ''
+    };
+    console.log(this.trip);
+    this.dataservice.createtrips(this.tokenid, this.trip).subscribe((trips) => {
+    console.log('Sukses create trips', trips);
+    this.storage.set('tripid', trips.id);
+    this.storage.set('statustrip', trips.status);
+    this.storage.set('departure', this.departure);
+    this.storage.set('destination', this.addressElement.value);
+    this.tripid = trips.id;
+    this.statustrip = trips.status;
+    this.tripstart = trips.created_at;
+    this.tripend = trips.updated_at;
+    this.datapoint = {
+      'waypoint[a]' : '',
+      'waypoint[trip_id]' : this.tripid,
+      'waypoint[pickup_location]' : this.departure,
+      'waypoint[pickup_lat]' : this.position.lat(),
+      'waypoint[pickup_lng]' : this.position.lng(),
+      'waypoint[dropoff_location]' : this.addressElement.value,
+      'waypoint[dropoff_lat]' : this.deslat,
+      'waypoint[dropoff_lng]' : this.deslng,
+      'waypoint[sequence]' : '1',
+      'waypoint[mileage]' : '0',
+      'waypoint[start_time]' : this.tripstart,
+      'waypoint[end_time]' : this.tripend,
+      'waypoint[updated_at]' : this.tripstart,
+      'waypoint[created_at]' : this.tripend,
+      'waypoint[checkpoints]' : '',
+      'waypoint[b]' : ''
+    };
+    this.createwaypoint(this.datapoint);
+    }, (err) => {
+      console.log(err);
+    });
+    }, (err) => {
+      console.log(err);
+    });
+    }, (err) => {
+    console.log('oncompleted trips', err);
+  });
+  }
+  });
+  }
+  createwaypoint(datapoint) {
+    this.storage.get('access_token').then((res) => {
+      this.tokenid = res;
+      }, (err) => {
+        console.log('oncompleted trips', err);
+      });
+    console.log('datapoint', JSON.stringify(datapoint));
+    this.dataservice.waypoint(this.tokenid, datapoint).subscribe((waypoints) => {
+    console.log('hasil create waypoint', waypoints);
+    this.waypointid = waypoints.id;
+    this.storage.set('waypointid', waypoints.id);
+    this.storage.set('wpickup_location', waypoints.pickup_location);
+    this.storage.set('wdropoff_location', waypoints.dropoff_location);
+    }, (err) => {
+      console.log(err);
+    });
+    this.pushnot = {
+      'payloads[a]' : '',
+      'notification[title]' : '',
+      'notification[body]' : '',
+      'notification[sound]' : '',
+      'payloads[title]' : 'Order',
+      'payloads[message]' : '',
+      'payloads[trip_id]' : this.tripid,
+      'payloads[passenger_id]' : this.userid,
+      'payloads[driver_id]' : this.driverid,
+      'payloads[information]' : this.note,
+      'payloads[pickup_location]' : this.departure,
+      'payloads[pickup_lat]' : this.position.lat(),
+      'payloads[pickup_lng]' : this.position.lng(),
+      'payloads[dropoff_location]' : this.addressElement.value,
+      'payloads[dropoff_lat]' : this.deslat,
+      'payloads[dropoff_lng]' : this.deslng,
+      'payloads[status]' : 'ondispatch',
+      'payloads[b]' : ''
+    };
+    console.log('this.pushnot', JSON.stringify(this.pushnot));
+    this.pushnotif(this.pushnot);
+  }
   orderSuccess() {
     this.onSuccess = !this.onSuccess;
   }
 
   goToSchedule(): void {
     this.presentRouteLoader('Tunggu sebentar ...');
-    this.nav.push(SchedulePage);
+    this.nav.push(FeedbackPage);
+  }
+  goschedule() {
+    let confirm = this.alertCtrl.create({
+      title: 'Perhatian!',
+      message: 'Maaf fitur belum tersedia',
+      buttons: [
+        {
+          text: 'Tutup',
+          handler: () => {
+            console.log('Close');
+          }
+        }
+      ]
+    });
+    confirm.present();
+    // this.nav.push(FeedbackPage);
   }
 
   goToFeedback(): void {
@@ -860,38 +933,61 @@ getassignedDriver() {
   onstarte(statustrips): void {
     this.presentRouteLoader('Tunggu sebentar ...');
     this.onstarted = statustrips;
-    this.statustrip = statustrips;
-    console.log('jalan onstarted', this.onstarted);
+    this.storage.set('onstarted', this.onstarted);
+    if (this.onstarted === 'ontransport') {
+      console.log('lagi dijalan');
+      this.storage.get('times').then((times) => {
+      console.log('this.waktus', times);
+      this.waktu = times;
+      });
+    } else {
+      this.startrip();
+    }
+    console.log('status trip', this.onstarted);
+  }
+  startrip () {
+    this.waktu = '0 min';
   }
   oncompleted() {
     this.presentRouteLoader('Tunggu sebentar ...');
+    console.log('masuk halaman feedback');
     this.nav.push(FeedbackPage);
-    // let myInterval = setInterval(() => {
-    // this.dataservice.trip(this.tokenid, this.tripid).subscribe((data) => {
-    //   this.statustrip = data.trip.status;
-    //   console.log('statustrip', this.statustrip);
-    //   // this.tripsid = data.trip.id;
-    //   if (this.statustrip === 'oncompleted' ) {
-    //     this.nav.push(FeedbackPage);
-    //   }
-    //   // } else { this.ontrips = false; }
-    //   // if (this.tripid === this.tripsid && this.statustrip === 'oncompleted'
-    //   // if (this.statustrip === 'onwaiting' && this.statustrip === 'oncanceled'
-    //   // || this.statustrip === 'onstarted'
-    //   // || this.statustrip === 'ontransport' && this.statustrip === 'oncompleted') {
-    //   //   this.goToFeedback();
-    //   //   this.nav.push(FeedbackPage);
-    //   // }
-    //   }, (err) => {
-    //     console.log('oncompleted trips', err);
-    //   });
-    // //   clearInterval(myInterval);
-    // //  }, 5000);
-    // return this.nav.push(FeedbackPage);
   }
   offtrip(): void {
     this.presentRouteLoader('Tunggu sebentar ...');
-    this.dataservice.offtrip(this.tokenid, this.tripid).subscribe((data) => {
+    this.storage.set('tripid', '' || null);
+    this.storage.set('statustrip', '' || null);
+    this.storage.set('ordered', false);
+    this.storage.set('waypointid',  '' || null);
+    this.storage.set('drivername',  '' || null);
+    this.storage.set('gender',  '' || null);
+    this.storage.set('noted',  '' || null);
+    this.storage.set('plates',  '' || null);
+    this.storage.set('waktus',  '' || null);
+    this.storage.set('distance',  '' || null);
+    this.storage.set('times',  '' || null);
+    this.storage.set('wpickup_location',  '' || null);
+    this.storage.set('wdropoff_location',  '' || null);
+    this.storage.set('contact', '' || null);
+    this.status = {
+      driver: {
+        status : 'available'
+      }
+    // tslint:disable-next-line:semicolon
+    }
+    console.log('update status cancel trip', this.status);
+    this.dataservice.createstatus(this.tokenid, this.status, this.iddriver).subscribe((resu) => {
+    console.log('update status', resu);
+    }, (err) => {
+      console.log(err);
+    });
+    this.statustrip = {
+      trip: {
+        status : 'oncanceled'
+      }
+    // tslint:disable-next-line:semicolon
+    }
+    this.dataservice.offtrip(this.tokenid, this.tripid, this.statustrip).subscribe((data) => {
       console.log('cancel trip berhasil', data);
       this.presentRouteLoader('Tunggu sebentar ...');
       this.nav.push(TabsPage);
@@ -928,13 +1024,13 @@ getassignedDriver() {
   }
 
   doNote() {
+    console.log(this.note);
     let confirm = this.alertCtrl.create({
       title: 'Catatan untuk Pengemudi',
-      message: '',
       inputs: [
         {
-          // name: 'Silahkan masukan catatan anda',
-          placeholder: 'Silahkan masukan catatan anda'
+          value: this.note,
+          placeholder: 'Silahkan masukan catatan anda',
         },
       ],
       buttons: [
@@ -948,8 +1044,10 @@ getassignedDriver() {
           text: 'Save',
           handler: data => {
             this.note = data[0];
+            this.storage.set('noted', this.note);
             // this.note.push(data);
             console.log(this.note);
+            console.log('data', data);
             console.log('Saved clicked');
           }
         }
@@ -958,8 +1056,10 @@ getassignedDriver() {
     confirm.present();
   }
   doCall() {
+    this.dataservice.getUser(this.tokenid, this.driverid).subscribe((result) => {
+    this.storage.set('contact', result.user.phone_number);
     this.presentRouteLoader('Tunggu sebentar ...');
-    console.log('call or sms:' + this.calldriver);
+    console.log('call or sms:' + result.user.phone_number);
     let confirm = this.alertCtrl.create({
       title: 'Kontak Pengemudi',
       message: 'Panggil atau kirim pesan pengemudi ?',
@@ -967,8 +1067,11 @@ getassignedDriver() {
         {
           text: 'Call',
           handler: () => {
-            console.log('call no hp:' + this.calldriver);
-            window.open('tel:' + this.calldriver);
+            console.log('call no hp:' + result.user.phone_number);
+            // this.callNumber.callNumber(result.user.phone_number, true)
+            // .then(res => console.log('Launched dialer!', res))
+            // .catch(err => console.log('Error launching dialer', err));
+            window.open('tel:' + result.user.phone_number);
             console.log('Call clicked');
           }
         },
@@ -982,9 +1085,14 @@ getassignedDriver() {
       ]
     });
     confirm.present();
+  }, (err) => {
+    console.log(err);
+  });
   }
+
   sendSMS() {
-  console.log('sms no hp:' + this.calldriver);
+  this.dataservice.getUser(this.tokenid, this.driverid).subscribe((result) => {
+  console.log('sms no hp:' + result.user.phone_number);
 
   let options = {
         replaceLineBreaks: false, // true to replace \n by a new line, false by default
@@ -993,12 +1101,15 @@ getassignedDriver() {
             // intent: '' // Sends sms without opening default sms app
           }
   };
-  this.smsVar.send(this.calldriver, 'Hai, Pengemudi', options);
+  this.smsVar.send(result.user.phone_number, 'Hai, Pengemudi ' + result.user.full_name + '', options);
    // .then(()=>
   // {
   // alert('success');
   // }
   // alert('failed');
+  }, (err) => {
+  console.log(err);
+  });
   }
 
   canceltrip() {
@@ -1101,24 +1212,24 @@ getassignedDriver() {
     let btn = this.searchbar.nativeElement.querySelector('.searchbar-input');
     btn.addEventListener('click', (e: Event) => this.destination);
     this.mapService.createAutocomplete(this.addressElement).subscribe((location) => {
-      this.dismiss(location);
-      this.deslat = location.lat();
-      this.deslng = location.lng();
-      console.log('location : ' + location);
-      // this.calculateAndDisplayRoute();
-      this.geocoderService.addressForlatLng(this.deslat, this.deslng)
-            .subscribe((desti: string) => {
-              this.destination = desti;
-              this.calculateAndDisplayRoute();
-              console.log('desti' + this.destination);
-            }, (error) => {
-              this.displayErrorAlert();
-              console.error(error);
-            });
-      // this.calculateAndDisplayRoute(location);
-    }, (error) => {
-      console.error(error);
-    });
+    this.dismiss(location);
+    this.deslat = location.lat();
+    this.deslng = location.lng();
+    console.log('location : ' + location);
+    // this.calculateAndDisplayRoute();
+    this.geocoderService.addressForlatLng(this.deslat, this.deslng)
+          .subscribe((desti: string) => {
+            this.destination = desti;
+            this.calculateAndDisplayRoute();
+            console.log('desti' + this.destination);
+          }, (error) => {
+            this.displayErrorAlert();
+            console.error(error);
+          });
+    // this.calculateAndDisplayRoute(location);
+  }, (error) => {
+    console.error(error);
+  });
   }
 
   calculateAndDisplayRoute() {
@@ -1130,7 +1241,7 @@ getassignedDriver() {
     console.log('destination : ' + this.addressElement.value);
     console.log('destination :', this.destination);
     console.log('destinations :', this.destinations);
-    this.storage.set('destinations', this.destination);
+    // this.mapService.removeMarker();
     this.directionsService.route({
       origin: this.departure,
       destination: this.addressElement.value,
@@ -1139,20 +1250,20 @@ getassignedDriver() {
       console.log(response);
       // if (status === 'OK') {
       if (status === google.maps.DirectionsStatus.OK) {
-        console.log('data', response.routes[0].legs[0].distance);
-        console.log('data', response.routes[0].legs[0].duration);
-        this.distances = response.routes[0].legs[0].distance.text;
-        console.log('distances', this.distances);
-        this.jarak = response.routes[0].legs[0].duration.text;
-        this.storage.set('jarak', this.jarak);
-        this.storage.set('distance', this.distances);
-        console.log('times', this.jarak);
+        console.log('data distance', response.routes[0].legs[0].distance);
+        console.log('data distance', response.routes[0].legs[0].duration);
+        let distance = response.routes[0].legs[0].distance.text;
+        console.log('data distance', distance);
+        this.storage.set('distance', response.routes[0].legs[0].distance.text);
+        this.storage.set('distance', distance);
+        let vtimes = response.routes[0].legs[0].duration.value;
+        this.getEstimatedTimeOfArrival2(vtimes);
         let route = response.routes[0].legs[0];
         console.log('data', route);
-        this.mapService.removeMarker();
+        // this.mapService.removeMarker(route.start_location);
         // this.mapService.removeMarker(route.end_location);
-        this.mapService.createMarker(route.start_location);
-        console.log('origin', route.start_location);
+        // this.mapService.createMarker(route.start_location);
+        // console.log('origin', route.start_location);
         this.mapService.createMarker1(route.end_location);
         // this.directionsDisplay.setDirections(response);
         this.mapService.directions(response);
@@ -1181,6 +1292,18 @@ getassignedDriver() {
     });
     alert.present();
   }
+  private findriver() {
+    this.presentRouteLoader('Tunggu sebentar ...');
+    const alert = this.alertCtrl.create({
+      title: 'Armada User',
+      subTitle: 'Akhirnya dapat pengemudi yang siap',
+    });
+    alert.present();
+    let myInterval = setInterval(() => {
+      alert.dismiss();
+      clearInterval(myInterval);
+    }, 1500);
+  }
   private drivernot() {
     const alert = this.alertCtrl.create({
       title: 'Pengemudi Tidak Tersedia',
@@ -1189,6 +1312,7 @@ getassignedDriver() {
       buttons: [{
         text: 'OK',
         handler: () => {
+          this.nav.push(TabsPage);
           // setTimeout(() => this.goToHome(), 500);
         }
       }],

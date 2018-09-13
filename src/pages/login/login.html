@@ -12,14 +12,27 @@
       <img src="assets/img/app_title.png">
   </div>
   <div bottom padding class="login-info">
-      <form [formGroup]="loginForm" (submit)="doLogin()">
+      <form [formGroup]="loginForm" (submit)="doLogin()" autocomplete="off">
+  <ion-row>
+    <ion-col>
       <ion-item>
-        <ion-input type="username" formControlName="username" placeholder="Username" name="username" required="required"></ion-input>
+        <!-- <ion-input type="username" formControlName="username" [(ngModel)]="username" placeholder="Username" name="username" required></ion-input> -->
+        <ion-input placeholder="Username" name="username" [formControl]="loginForm.controls['username']"
+        type="username"></ion-input>
       </ion-item>
       <ion-item>
-        <ion-input type="password" formControlName="password" placeholder="Password" name="password" required="required"></ion-input>
+        <!-- <ion-input type="password" formControlName="password" [(ngModel)]="password" placeholder="Password" name="password" required></ion-input> -->
+        <ion-input placeholder="Password" name="password" required [formControl]="loginForm.controls['password']"
+        type="password"></ion-input>
       </ion-item>
+    </ion-col>
+  </ion-row>
+
+      <ion-row>
+          <ion-col>
               <button class= "btn-login" ion-button full color="primary" type="submit">LOGIN</button>
+    </ion-col>
+  </ion-row>
       </form>
   </div>
 </ion-content>

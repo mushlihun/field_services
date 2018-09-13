@@ -7,23 +7,16 @@
   </ion-header>
 <ion-content>
   <div padding class="profile-info">
-    <ion-item>
-      <ion-label color="primary" stacked>Full name</ion-label>
-      <ion-input [readonly]="isReadonly" class="label" type="text" [(ngModel)]="fullname"><p>{{fullname}}</p></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label color="primary" stacked>Email</ion-label>
-      <ion-input [readonly]="isReadonly" class="label" type="email" [(ngModel)]="email">{{email}}</ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label color="primary" stacked>Phone number</ion-label>
-      <ion-input [readonly]="isReadonly" class="label" type="text" [(ngModel)]="phone">{{phone}}</ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label color="primary" stacked>Division</ion-label>
-      <ion-input [readonly]="isReadonly" class="label" type="text" [(ngModel)]="divisionid">{{divisionid}}</ion-input>
-    </ion-item>
-    </div>
+    <ion-label color="primary" stacked>Full name</ion-label>
+    <p ion-item class="textitle">{{title}}. {{fullname}}</p>
+    <ion-label color="primary" stacked>Email</ion-label>
+    <p ion-item>{{email}}</p>
+    <ion-label color="primary" stacked>Phone number</ion-label>
+    <p ion-item>{{phone}}</p>
+    <ion-label color="primary" stacked>Division</ion-label>
+    <p ion-item>{{divisiname}}, {{site}}-{{region}}</p>
+  </div>
+    
     <ion-fab bottom class="change">
           <button  ion-button full color="primary" (click)="goToChange()">Change Password</button>
       </ion-fab>

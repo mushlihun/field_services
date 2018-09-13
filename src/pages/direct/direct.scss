@@ -1,5 +1,8 @@
 .map-page {
   background: rgb(229, 227, 223);
+  .title {
+    margin-bottom: 2%;
+  }
 .card-id {
   width: 100%;
   bottom: 0px;
@@ -55,7 +58,7 @@
 }
 .inputext {
   margin-top:2%;
-  margin-left: -5px;
+  margin-left: 4%;
   background-color: transparent;
   color: black;
   border-bottom-color: black;
@@ -79,9 +82,10 @@
 }
 .icon-locate {
   color: turquoise;
-  left: 4%;
   top: 35%;
+  left: 5%;
 }
+
 .icon-pin {
   color: #206189;
   top: 35%;
@@ -99,6 +103,7 @@
   top: 20%;
   right: 5%;
 }
+
 .time {
   position: fixed;
   top: 20%;
@@ -128,7 +133,7 @@
 .btn-order {
   bottom: 2%;
   width: 46%;
-  background-color: white;
+  background-color: transparent;
 }
 .fullorder {
   width: 100%;
@@ -137,11 +142,14 @@
   height: 12%;
 }
 .identity {
-  margin: 0 0 10% 0%;
+  margin: 0 0 8% 0%;
   width: 100%;
 }
 .identity2 {
-  margin-bottom: 4%;
+  margin-bottom: 0%;
+  .label-md {
+    margin: 13px 8px 13px 5%;
+}
 }
 .form {
   bottom: 13px;
@@ -154,13 +162,13 @@
   top: 25%;
 }
 .people {
-  top: 2%;
+  top: 0%;
 }
 .text {
   top: 50%;
 }
 p {
-  font-size: 0.9em;
+  font-size: 1.2rem;
 }
 .plat {
   bottom: 25%;
@@ -231,9 +239,9 @@ p {
     }
     .searchbar-md .searchbar-search-icon {
       background: url(../assets/icon/icon_pickup.png);
-      top: 5px;
-      left: 17px;
-      background-size: 15px 20px;
+      top: 25%;
+      left: 4%;
+      background-size: 10px 15px;
       background-repeat: no-repeat;
   }
   .searchbar-ios .searchbar-search-icon {
@@ -282,7 +290,7 @@ p {
 }
 
 .alert-md .alert-title {
-  font-size: 1.2em;
+  font-size: 1.4em;
 }
 
 .list-md .item-input.ng-invalid.ng-touched:not(.input-has-focus):last-child {
@@ -312,4 +320,7 @@ p {
 }
 #map {
   height: 100%;
+}
+.alert-md .alert-message {
+  color: black;
 }

@@ -7,7 +7,7 @@
   <ion-fab top class="headform">
       <ion-list no-lines>
         <!-- <form [formGroup]="form" (ngSubmit)="direct(form.value, form.valid)"> -->
-        <button ion-button no-lines no-border class="form"  >
+        <button ion-button no-lines no-border class="form">
         <ion-item class="input1">
         <ion-label><ion-icon name="locate" class="icon-locate"></ion-icon></ion-label>
         <ion-input [readonly]="isReadonly" [(ngModel)]="departure" class="inputext" type="text" placeholder="Keberangkatan"></ion-input>
@@ -39,10 +39,10 @@
         </ion-label>  
     </ion-fab>
   <ion-fab round left bottom class="btn-order">
-      <button ion-button full [disabled]="oneclick" (click)="directs()"><p>DIRECT</p></button>
+      <button ion-button full [disabled]="oneclick" (click)="direct()"><p>DIRECT</p></button>
   </ion-fab>
   <ion-fab round right bottom class="btn-order">
-  <button ion-button full (click)="goToSchedule()"><p>SCHEDULE</p></button>
+  <button ion-button full (click)="goschedule()"><p>SCHEDULE</p></button>
   </ion-fab>
 </div>
   <!-- <div *ngIf="waiting" class="bottom">
@@ -65,13 +65,13 @@
             <ion-item class="identity2">
               <ion-icon class="people" name="people" item-left small ></ion-icon>
               <!-- <ion-label [(ngModel)]="full_name">{{full_name}}</ion-label> -->
-              <p>{{title}} {{drivername}}</p>
+              <p class="titlex">{{title}}. {{drivername}}</p>
               <ion-icon class="car" name="car" item-left small ></ion-icon>
-              <p>Direct</p>
+              <p class="title">Direct</p>
               <ion-icon class="text" name="text" item-left small ></ion-icon>
-              <!-- <p>{{note}}</p> -->
-              <p>{{statustrip}}</p>
-              <ion-note><h1>{{waktu}}</h1><p text-right>away</p></ion-note> 
+              <p class="title">{{note}}</p>
+              <!-- <p>{{statustrip}}</p> -->
+              <ion-note><h1>{{waktu}} mins</h1><p text-right>away</p></ion-note> 
               <!-- <ion-note><h1>{{time}}</h1><p text-right>away</p></ion-note>  -->
               <!-- <ion-note><h1>3</h1><p text-right>min away</p></ion-note>    -->
             </ion-item>
@@ -85,7 +85,7 @@
         </button>
       </ion-fab>
       <ion-fab round right bottom class="btn-order">
-      <button ion-button full (click)="canceltrip()" [disabled]="onstarted=='onstart'" class="cancel">
+      <button ion-button full (click)="canceltrip()" [disabled]="onstarted=='ontransport'" class="cancel">
         <ion-icon name="close-circle"></ion-icon>
         <p>CANCEL TRIP</p>
       </button>

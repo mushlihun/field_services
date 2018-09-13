@@ -86,7 +86,8 @@ update () {
   this.globalService.toastInfo(error.message ? error.message : 'Gagal, coba lagi masukkan password', 3000, 'bottom');
            });
        }
-   }
+  }
+  this.globalService.toastInfo('Inputan password baru dan konfirmasi tidak sama', 3000, 'bottom');
 }
 change(kuncihash): void {
   console.log('password: ', this.userid);
@@ -103,9 +104,11 @@ change(kuncihash): void {
     }, (error) => {
 console.log('ERROR: ', error);
 this.globalService.toastInfo(error.message ? error.message : 'Gagal, coba lagi masukkan password', 3000, 'bottom');
-         });
-     }
- }
+  });
+}
+    this.globalService.toastInfo('Inputan password baru dan konfirmasi tidak sama', 3000, 'bottom');
+  }
+  this.globalService.toastInfo('Inputan password baru dan konfirmasi tidak sama', 3000, 'bottom');
 }
   profile(): void {
     // this.nav.push(ProfilePage);

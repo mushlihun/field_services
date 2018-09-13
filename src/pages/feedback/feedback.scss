@@ -55,14 +55,7 @@
   text-align: center;
 }
 
-.icon-locate {
-  color: turquoise;
-  left: 4%;
-}
 
-.icon-pin {
-  color: rgb(51, 170, 22);
-}
 
 .button-full-md {
   margin-right: 0px;
@@ -90,9 +83,14 @@
 .card1{
   left: 10px;
 }
+.card-md .pick{
+  margin: 0% 0% 0% 0% !important;
+}
+
 .strip{
   color:rgb(4, 4, 61);
 }
+
 .feedback-info {
   font-size : 12sem;
   padding-right: 25px;
@@ -100,6 +98,31 @@
   //background-image: url(../assets/img/background_gray.png);
   //background-color: rgb(235, 231, 231);
   height: auto;
+  .feedback-info .ion-icon {
+    margin-left: 4% !important; 
+  }
+  .btn-login {
+    margin-top: 10%;
+    width: 100%;
+  }
+  .locates {
+    color: turquoise;
+    margin-left: 4% !important; 
+  }
+  .persons {
+    margin-left: 4% !important;
+  }
+  .pins {
+    color: rgb(51, 170, 22);
+    margin-left: 4% !important; 
+  }
+  .pick{
+    color : black;
+    font-size: 1.2rem !important;
+    padding-left: 0%;
+    width: 100%;
+    padding-top: 8px;
+  }
 }
 .info{
   margin-top: 10px;
@@ -107,10 +130,7 @@
 .namedriver {
   text-transform: capitalize;
 }
-.pick{
-  color : black;
-  font-size: 1.2rem;
-}
+
 .pickup {
     width: 100px; 
     overflow: hidden;

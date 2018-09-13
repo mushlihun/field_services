@@ -34,10 +34,12 @@ export class DirectPage extends BasePage {
   form: FormGroup;
   position: google.maps.LatLng;
   departure: any;
+  departures: any;
   destination: any;
   destinations: any;
   start = 'chicago, il';
   end = 'chicago, il';
+  ordered = 'checked';
   localized: boolean = false;
   orderTowait: boolean = true;
   waiting: boolean = false;
@@ -75,10 +77,6 @@ export class DirectPage extends BasePage {
   tokenuser: any;
   acctoken: any;
   time: any;
-  calldriver: any;
-  // tslint:disable-next-line:variable-name
-  passenger_id: any;
-  // tslint:disable-next-line:variable-name
   driver_id: any;
   note: any = [];
   status: any ;
@@ -89,6 +87,7 @@ export class DirectPage extends BasePage {
   tripstart: any;
   tripend: any;
   datapoint: any = [];
+  waypointid: any;
   latlng: any;
   pushnot: any = [];
   tokendriver: any;
@@ -104,75 +103,67 @@ export class DirectPage extends BasePage {
   searchQuery: any;
   waktu: any;
   iduser: any;
-  respon: any;
-  public onstarted: any = 'onwaiting';
+  eta: any;
+  route: any;
+  public onstarted: any;
   public nearbyPlaces: Array<any> = [];
   public number: any;
   public plat: any;
   public plate: any;
   private addressElement: HTMLInputElement = null;
-  private showposition: any;
-  // private directionsService: google.maps.DirectionsService;
-  // private directionsDisplay: google.maps.DirectionsRenderer;
-  // let directionsService = new google.maps.DirectionsService;
-  // let directionsDisplay = new google.maps.DirectionsRenderer;
-  private map: google.maps.Map = null;
-  constructor(private fb: FormBuilder,
+  constructor(
               public auth: AuthService,
-              private zone: NgZone,
               private platform: Platform,
               public dataservice: DataServiceProvider,
               private nav: NavController,
               private geocoderService: GeocoderService,
               private mapService: MapService,
-              private modalCtrl: ModalController,
               private loadingCtrl: LoadingController,
               protected alertCtrl: AlertController,
-              private callNumber: CallNumber,
-              private rideService: RideService,
-              private orderService: OrderService,
-              private viewCtrl: ViewController,
-              private renderer: Renderer,
               private backgroundMode: BackgroundMode,
-              private globalService: GlobalServiceProvider,
               private fcm: FCM,
               private smsVar: SMS,
               public storage: Storage) {
     super(alertCtrl);
   }
   ionViewWillEnter() {
+    this.storage.set('feedbackPage', false);
+    this.isOrdered();
     this.backgroundMode.enable();
     if (typeof FCMPlugin !== 'undefined') {
     this.fcm.getToken().then(token => {
     console.log('tokenfcm', token);
-    Promise.all([this.storage.get('access_token'), this.storage.get('user_id')]).then((res) => {
-    console.log(res);
-    this.tokenid = res[0];
-    this.userid = res[1];
-    console.log('this.tokenid: ', this.tokenid);
-    console.log('this.userid: ', this.userid);
-    });
-    this.tokenfcm = token;
-    let tokenfcm = token;
-    this.fcmtoken = {
-          user: {
-          token : tokenfcm
-              }
-          };
-    console.log('update token', this.fcmtoken);
-    this.auth.updatetokenFCm(this.tokenid, this.userid, this.fcmtoken).subscribe((res) => {
-    console.log('update status1', res);
-    this.storage.set('tokenfcm', res.token);
-    console.log('hasil update token = ' + res.token);
-      }, (err) => {
-    console.log('gagal update token', err);
-      });
     this.fcm.onNotification().subscribe(data => {
     console.log('tes:' + JSON.stringify(data));
-    let statusfcm = data;
+    let status = '';
+      for (let key in data) {
+      if (key === 'status') {
+          status = data[key];
+          }
+        }
+      if (status === 'onstart') {
+      this.onstarte('ontransport');
+      console.log('jalan onstarte');
+        } else if (status ===  'oncompleted') {
+      this.oncompleted();
+      console.log('jalan oncompleted');
+        }
     console.log('tes:' + data.wasTapped);
     if (data.wasTapped) {
       console.log('Received in background');
+      let status = '';
+      for (let key in data) {
+      if (key === 'status') {
+          status = data[key];
+          }
+        }
+      if (status === 'onstart') {
+      this.onstarte('ontransport');
+      console.log('jalan onstarte');
+        } else if (status ===  'oncompleted') {
+      this.oncompleted();
+      console.log('jalan oncompleted');
+        }
       } else {
       let status = '';
       for (let key in data) {
@@ -181,7 +172,7 @@ export class DirectPage extends BasePage {
           }
         }
       if (status === 'onstart') {
-      this.onstarte('onstart');
+      this.onstarte('ontransport');
       console.log('jalan onstarte');
         } else if (status ===  'oncompleted') {
       this.oncompleted();
@@ -194,70 +185,115 @@ export class DirectPage extends BasePage {
       }
   }
   ionViewDidLoad() {
-    this.directionsService = new google.maps.DirectionsService;
-    this.directionsDisplay = new google.maps.DirectionsRenderer;
-    this.mapService.closeInfoWindow();
-    this.position = this.mapService.mapCenter;
-    if (this.position) {
-      this.storage.get('departures').then((start) => {
-      this.departure = start;
-      });
-      this.storage.get('destinations').then((finish) => {
-      this.destination = finish;
-      });
-      this.storage.get('plates').then((plates) => {
-        this.plate = plates;
-      });
-      this.storage.get('gender').then((genders) => {
-        this.gender = genders;
-        if (this.gender === 'Male') {
-           this.title = 'Mr.';
-        } else {
-           this.title = 'Mrs.';
-        }
-      });
-      this.storage.get('drivername').then((drivername) => {
-        this.drivername = drivername;
-      });
-      this.storage.get('waktus').then((waktus) => {
-        this.waktu = waktus;
-      });
-      // this.calculateAndDisplayRoute(desti);
-    }
+    this.isOnwaiting();
   }
-  ionViewDidEnter(respon) {
+  ionViewDidEnter() {
+  }
+  isOrdered() {
+    console.log('this.isOrdered(directpage);');
+    this.storage.get('ordered').then((ordered) => {
+    if (!ordered === true) {
+      console.log('tidak order');
+     } else {
+      this.isOnwaiting();
+      console.log('masuk halaman direct2');
+          }
+      });
+    }
+  isOnwaiting() {
+    this.storage.set('feedbackPage', false);
     Promise.all([this.storage.get('access_token'), this.storage.get('user_id')]).then((res) => {
-      console.log('access_token2', res[0]);
       this.tokenid = res[0];
-      console.log('user_id2', res[1]);
       this.userid = res[1];
     });
+    this.storage.get('waypointid').then((waypointid) => {
+    if (waypointid === null) {
+    console.log('waypointid kosong');
+    } else {
+    // this.orderTowait = false;
+    // this.onSuccess = true;
+    // this.storage.get('statustrip').then((tripstatus) => {
+    this.dataservice.waypointx(this.tokenid, waypointid).subscribe((datas) => {
+    this.departures = datas.waypoint.pickup_location;
+    this.destination = datas.waypoint.dropoff_location;
+    this.directionsService = new google.maps.DirectionsService
     this.directionsService.route({
-      origin: this.departure,
+      origin: this.departures,
       destination: this.destination,
       travelMode: 'DRIVING'
-      }, (response, status) => {
+    }, (response, status) => {
       console.log(response);
-      this.respon = response;
-  // if (status === 'OK') {
+      // if (status === 'OK') {
       if (status === google.maps.DirectionsStatus.OK) {
-      console.log('distances', response.routes[0].legs[0].distance);
-      console.log('duration', response.routes[0].legs[0].duration);
-      this.distances = response.routes[0].legs[0].distance.text;
-      console.log('distances', this.distances);
-      this.jarak = response.routes[0].legs[0].duration.text;
-      this.storage.set('jarak', this.jarak);
-      this.storage.set('distance', this.distances);
-      console.log('times', this.jarak);
-      let route = response.routes[0].legs[0];
-      console.log('route', route);
-      this.mapService.createMarker(route.start_location);
-      console.log('origin', route.start_location);
-      this.mapService.createMarker1(route.end_location);
-      this.directionsDisplay.setDirections(response);
-      this.mapService.directions(response);
+        let route = response.routes[0].legs[0];
+        console.log('distancesssss', route);
+        // this.mapService.createMarker(route.start_location);
+        this.mapService.createMarker1(route.end_location);
+        this.mapService.directions(response);
+      } else {
+        // window.alert('Directions request failed due to ' + status);
+      }
+    });
+  });
+  this.storage.get('wpickup_location').then((wpickup) => {
+    this.departure = wpickup;
+    });
+  this.storage.get('wdropoff_location').then((wdropoff) => {
+  this.destination = wdropoff;
+  });
+  this.storage.get('drivername').then((name) => {
+    console.log('name : ' + name);
+    this.drivername = name;
+  });
+  this.storage.get('gender').then((genders) => {
+    this.gender = genders;
+    if (this.gender === 'Male') {
+      this.title = 'Mr.';
+    } else {
+      this.title = 'Mrs.';
     }
   });
+  this.storage.get('noted').then((noted) => {
+    console.log('noted : ' + noted);
+    this.note = noted;
+  });
+  this.storage.get('waktus').then((waktus) => {
+    console.log('waktus : ' + waktus);
+    this.waktu = waktus;
+  });
+  this.storage.get('times').then((times) => {
+    console.log('this.waktus', times);
+    this.waktu = times;
+  });
+  this.storage.get('plates').then((plates) => {
+    console.log('plates : ' + plates);
+    this.plate = plates;
+  });
+  this.storage.get('tripid').then((tripid) => {
+    console.log('tripid : ' + tripid);
+    this.trip = tripid;
+  });
+  console.log('tripid directpage: ' + this.trip);
+  this.dataservice.trip(this.tokenid, this.trip).subscribe((data) => {
+    console.log('status trip jalan/nunggu', data.trip);
+    let tripstatus = data.trip.status;
+    if (tripstatus === 'ontransport') {
+      this.onstarted = 'ontransport';
+      console.log('lagi dijalan', tripstatus);
+    } else if (tripstatus === 'oncompleted') {
+      console.log('udh masuk ke feedback', tripstatus);
+      this.oncompleted();
+    } else if (tripstatus === 'onwaiting') {
+      console.log('masih nunggu driver', tripstatus);
+      this.orderTowait = false;
+      this.onSuccess = true;
+    }
+  });
+
+  } //else waypoint ada
+    
+      });
+    
   }
   /***
    * This event is fired when map has fully loaded
@@ -327,7 +363,6 @@ keberangkatan(): void {
     this.geocoderService.addressForlatLng(this.position.lat(), this.position.lng())
         .subscribe((address: string) => {
          this.departure = address;
-         this.storage.set('departure', address);
          console.log('departure' + this.position);
             }, (error) => {
               this.displayErrorAlert();
@@ -336,156 +371,6 @@ keberangkatan(): void {
         }
 }
   // tslint:disable-next-line:max-line-length
-  direct(model: OrderModel, orderTowait: boolean, onSuccess: boolean, ontrips: boolean, endtrip: boolean, oneclick: boolean) {
-    this.oneclick = true;
-    this.presentRouteLoader('Tunggu sebentar ...');
-    this.fcmtoken = {
-      user: {
-      token : this.tokenfcm
-          }
-      // tslint:disable-next-line:semicolon
-      }
-    console.log('update token2', this.fcmtoken);
-    this.auth.updatetokenFCm(this.tokenid, this.userid, this.fcmtoken).subscribe((res) => {
-    console.log('update status2', res);
-    this.storage.set('tokenfcm', res.token);
-    console.log('hasil update token2 = ' + res.token);
-      }, (err) => {
-    console.log('gagal update token', err);
-      });
-    this.presentRouteLoader('Waiting...');
-    console.log('telah waiting');
-    this.getassignedDriver();
-    let getAssignedDriverTask = this.getassignedDriver();
-    if (getAssignedDriverTask !== undefined) {
-      console.log(getAssignedDriverTask);
-      let listassigndriver = this.getassignedDriver;
-      if (listassigndriver != null) {
-    console.log('telah waiting');
-    // buka command sini
-    Promise.all([this.storage.get('access_token')]).then((res) => {
-        this.auth.getDriver(res[0]).subscribe((data) => {
-          if (data.drivers.length === 0) {
-          this.drivernot();
-          this.globalService.toastInfo('Belum ada pengemudi yang tersedia', 3000, 'bottom');
-          }
-          Vibration.vibrate(1000);
-          console.log(data);
-          this.orderTowait = true;
-          // this.ontrips = true;
-          if (data.drivers && data.drivers.length > 0) {
-            this.drivers = data.drivers;
-            this.drivers.push({showDetails: false});
-            this.driverid = this.drivers[0].user_id;
-            this.iddriver = this.drivers[0].id;
-            this.status = this.drivers[0].status;
-            this.latitude = this.drivers[0].latitude;
-            this.longitude = this.drivers[0].longitude;
-            this.jarak = this.drivers[0].mileage;
-            this.waktu = this.getEstimatedTimeOfArrival(this.jarak);
-            this.storage.set('waktus', this.getEstimatedTimeOfArrival(this.jarak) );
-            console.log(this.jarak);
-            console.log(this.getEstimatedTimeOfArrival(this.jarak));
-            for (let i = 0; i < data.drivers.length - 1; i++) {
-              // tslint:disable-next-line:radix
-              this.driverid = parseInt(this.drivers[i].user_id);
-            }
-          }
-          this.dataservice.getUser(this.tokenid, this.driverid).subscribe((result) => {
-          this.orderTowait = false;
-          this.onSuccess = true;
-          console.log(result);
-          Vibration.vibrate(1000);
-          this.storage.set('drivername', result.user.full_name);
-          this.drivername =  result.user.full_name;
-          this.tokendriver = result.user.token;
-          this.calldriver = result.user.phone_number;
-          this.gender = result.user.gender;
-          if (this.gender === 'Male') {
-            this.title = 'Mr.';
-          } else {
-            this.title = 'Mrs.';
-          }
-
-    //       // this.driver.status =  'available';
-          this.dataservice.vehicles(this.tokenid, this.driverid).subscribe((vehicle) => {
-            console.log(vehicle);
-            if (vehicle.vehicles && vehicle.vehicles.length) {
-              this.plat = vehicle.vehicles;
-              this.plate = this.plat[0].license_plate;
-              this.storage.set('plates', this.plat[0].license_plate);
-            }
-          }, (err) => {
-            console.log(err);
-          });
-          this.status = {
-              driver: {
-                status : 'ontrip'
-              }
-          // tslint:disable-next-line:semicolon
-          }
-          console.log('update status', this.status);
-          this.dataservice.createstatus(this.tokenid, this.status, this.iddriver).subscribe((resu) => {
-            console.log('update status', resu);
-          }, (err) => {
-            console.log(err);
-          });
-// buka command sini
-          this.trip = {
-            'trip[a]' : '',
-            'trip[passenger_id]' : this.userid,
-            'trip[driver_id]' : this.driverid,
-            'trip[information]' : this.note,
-            'trip[status]' : 'onwaiting',
-            'trip[b]' : ''
-          };
-          console.log(this.trip);
-          // tslint:disable-next-line:no-shadowed-variable
-          this.dataservice.createtrips(this.tokenid, this.trip).subscribe((trips) => {
-            console.log(trips);
-            this.storage.set('trip_id', trips.id);
-            this.tripid = trips.id;
-            this.statustrip = trips.status;
-            this.tripstart = trips.created_at;
-            this.tripend = trips.updated_at;
-            this.datapoint = {
-              'waypoint[a]' : '',
-              'waypoint[trip_id]' : this.tripid,
-              'waypoint[pickup_location]' : this.departure,
-              'waypoint[pickup_lat]' : this.position.lat(),
-              'waypoint[pickup_lng]' : this.position.lng(),
-              'waypoint[dropoff_location]' : this.addressElement.value,
-              'waypoint[dropoff_lat]' : this.deslat,
-              'waypoint[dropoff_lng]' : this.deslng,
-              'waypoint[sequence]' : '1',
-              'waypoint[mileage]' : '0',
-              'waypoint[start_time]' : this.tripstart,
-              'waypoint[end_time]' : this.tripend,
-              'waypoint[updated_at]' : this.tripstart,
-              'waypoint[created_at]' : this.tripend,
-              'waypoint[checkpoints]' : '',
-              'waypoint[b]' : ''
-            };
-            console.log(this.datapoint);
-            console.log(JSON.stringify(this.datapoint));
-            console.log('Sukses create trips');
-            this.waypoint(this.datapoint);
-            console.log('lanjut waypoint');
-          }, (err) => {
-            console.log(err);
-          });
-        }, (err) => {
-          console.log(err);
-        });
-        }, (err) => {
-          console.log(err);
-          console.log('menunggu pengemudi available');
-        });
-      }, (err) => {
-        console.log('error', err);
-        });
-  }}
-}
 
 waypoint(datapoint) {
   console.log('datapoint', JSON.stringify(datapoint));
@@ -522,11 +407,12 @@ waypoint(datapoint) {
   });
 }
 distance() {
-  this.auth.distance(this.departure, this.addressElement.value).subscribe((distanceMatrix) => {
-console.log(distanceMatrix.rows[0].elements[0].duration.value.ToString());
-  }, (err) => {
-    console.log(err);
-  });
+  // this.auth.distance(this.departure, this.destination).subscribe((distanceMatrix) => {
+  // this.eta = distanceMatrix.rows[0].elements[0].duration.value.ToString();
+  // console.log(distanceMatrix.rows[0].elements[0].duration.value.ToString());
+  // }, (err) => {
+  //   console.log(err);
+  // });
 }
 pushnotif(pushnot) {
   console.log('push' + JSON.stringify(pushnot));
@@ -538,123 +424,6 @@ pushnotif(pushnot) {
   console.log('pushnotif', err);
   });
 }
-getAvailableDrivers() {
-  // filterarray berupa status
-  Promise.all([this.storage.get('access_token')]).then((res) => {
-    this.auth.getDriver(res[0]).subscribe((data) => {
-      console.log(data);
-      console.log('driver', data.drivers.users);
-      if (data === []) {
-        this.globalService.toastInfo('Belum ada driver tersedia', 3000, 'top');
-      }
-      this.auth.getDivision(res[0], 1).subscribe((datas) => {
-        console.log(datas);
-        console.log('divisions', datas.divisions);
-        for (let driverItem = 0; driverItem < data.drivers.length; driverItem++) {
-          for (let divisionsItem = 0; divisionsItem < datas.divisions.length; divisionsItem++) {
-            if (data.drivers[driverItem].users.division_id === datas.divisions[divisionsItem].id) {
-              this.availableDrivers.push.apply(this.availableDrivers, data.drivers[driverItem]);
-          } console.log ('data.drivers', this.availableDrivers);
-          }
-          console.log ('push available', this.availableDrivers);
-        }
-      }, (err) => {
-        console.log(err);
-      });
-    }, (err) => {
-      this.drivernot();
-      console.log(err);
-      console.log('menunggu driver available');
-    });
-  }, (err) => {
-    console.log(err);
-  });
-  return this.availableDrivers;
-}
-getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-    let R = 6371; // Radius of the earth in km
-    let dLat = this.deg2rad(lat2 - lat1);  // deg2rad below
-    let dLon = this.deg2rad(lon2 - lon1);
-    let a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
-      Math.sin(dLon / 2 ) * Math.sin(dLon / 2);
-    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    let d = R * c; // Distance in km
-    return d;
-  }
-  deg2rad(deg) {
-    return deg * (Math.PI / 180);
-  }
-getEstimatedTimeOfArrival(seconds) {
-  let hours = Math.floor(seconds / 3600);
-  let minutes = Math.floor(seconds / 60);
-  if (hours > 1) {
-    return this.time('{0} hrs', hours);
-    } else if (hours === 1) {
-    return this.time('{0} hr', hours);
-    } else {
-    if (minutes > 3) {
-    return this.time('{0} mins', minutes);
-    } else
-    return '3 mins';
-    }
-}
-
-getassignedDriver() {
-  this.presentRouteLoader('Tunggu sebentar ...');
-  this.getAvailableDrivers();
-  let listdriver = this.availableDrivers;
-  console.log('listdriver', listdriver);
-  // list driver available
-  if (listdriver > 0) {
-  let assignedIndex = 0;
-  let backupIndex = 0;
-  let driverCounter = 0;
-  for (let driverIndex = 0; driverIndex < listdriver.length; driverIndex++) {
-    let targetLocationLatitude = listdriver[driverIndex].latitude;
-    let targetLocationLongitude = listdriver[driverIndex].longitude;
-    let mileages = listdriver[driverIndex].mileage;
-    console.log('targetLocationLatitude', targetLocationLatitude);
-    console.log('targetLocationLongitude', targetLocationLongitude);
-    console.log('mileages', mileages);
-    // tslint:disable-next-line:no-unused-expression
-    // tslint:disable-next-line:max-line-length
-    this.driverdistance[driverIndex] = this.getDistanceFromLatLonInKm(this.deplat, this.deplng, targetLocationLatitude, targetLocationLongitude);
-    console.log(this.getDistanceFromLatLonInKm);
-    this.driversmileage[driverIndex] = this.getEstimatedTimeOfArrival(mileages);
-    if (this.driverdistance[driverIndex] <= 10000) {
-      if (this.driversmileage[driverIndex] === this.driversmileage[assignedIndex]) {
-          if (this.driverdistance[driverIndex] < this.driverdistance[assignedIndex])
-              assignedIndex = driverIndex;
-      }
-    // tslint:disable-next-line:one-line
-    else if (this.driversmileage[driverIndex] < this.driversmileage[this.assignedIndex])
-          this.assignedIndex = driverIndex;
-      driverCounter++;
-  }
-  // tslint:disable-next-line:one-line
-  else {
-      if (this.driverdistance[driverIndex] <= this.driverdistance[backupIndex])
-          backupIndex = driverIndex;
-  }
-
-  }
-  // tslint:disable-next-line:no-unused-expression
-  this.driver === null;
-    // tslint:disable-next-line:align
-    if (driverCounter > 0) {
-      // tslint:disable-next-line:max-line-length
-      this.driver = (listdriver[assignedIndex].id, listdriver[assignedIndex].user_id, listdriver[assignedIndex].latitude, listdriver[assignedIndex].longitude, listdriver[assignedIndex].mileage, listdriver[assignedIndex].status);
-    } else {
-    // tslint:disable-next-line:max-line-length
-    this.driver = (listdriver[backupIndex].id, listdriver[backupIndex].user_id, listdriver[backupIndex].latitude, listdriver[backupIndex].longitude, listdriver[backupIndex].mileage, listdriver[backupIndex].status);
-    return this.driver;
-    }
-  } else
-    return null;
-}
-
   orderSuccess() {
     this.onSuccess = !this.onSuccess;
   }
@@ -671,16 +440,87 @@ getassignedDriver() {
   onstarte(statustrips): void {
     this.presentRouteLoader('Tunggu sebentar ...');
     this.onstarted = statustrips;
-    this.statustrip = statustrips;
-    console.log('jalan onstarted', this.onstarted);
+    if (this.onstarted === 'ontransport') {
+      console.log('lagi dijalan');
+      this.storage.get('wpickup_location').then((wpickup) => {
+        this.departure = wpickup;
+        });
+      this.storage.get('wdropoff_location').then((wdropoff) => {
+      this.destination = wdropoff;
+      });
+      this.storage.get('times').then((times) => {
+      this.waktu = times;
+      console.log('this.waktu', this.waktu);
+    });
+    this.storage.get('drivername').then((name) => {
+      console.log('name : ' + name);
+      this.drivername = name;
+    });
+    this.storage.get('gender').then((genders) => {
+      this.gender = genders;
+      if (this.gender === 'Male') {
+        this.title = 'Mr.';
+      } else {
+        this.title = 'Mrs.';
+      }
+    });
+    this.storage.get('noted').then((noted) => {
+      console.log('noted : ' + noted);
+      this.note = noted;
+    });
+    this.storage.get('plates').then((plates) => {
+      console.log('plates : ' + plates);
+      this.plate = plates;
+    });
+    } else {
+      this.startrip();
+    }
+    console.log('status trip', this.onstarted);
+  }
+  startrip () {
+    this.waktu = '0 min';
   }
   oncompleted() {
     this.presentRouteLoader('Tunggu sebentar ...');
+    console.log('masuk halaman feedback');
     this.nav.push(FeedbackPage);
   }
   offtrip(): void {
     this.presentRouteLoader('Tunggu sebentar ...');
-    this.dataservice.offtrip(this.tokenid, this.tripid).subscribe((data) => {
+    this.storage.set('tripid', '' || null);
+    this.storage.set('statustrip', '' || null);
+    this.storage.set('ordered', false);
+    this.storage.set('feedbackPage', false);
+    this.storage.set('waypointid',  '' || null);
+    this.storage.set('drivername',  '' || null);
+    this.storage.set('gender',  '' || null);
+    this.storage.set('noted',  '' || null);
+    this.storage.set('plates',  '' || null);
+    this.storage.set('waktus',  '' || null);
+    this.storage.set('distance',  '' || null);
+    this.storage.set('times',  '' || null);
+    this.storage.set('wpickup_location',  '' || null);
+    this.storage.set('wdropoff_location',  '' || null);
+    this.storage.set('contact', '' || null);
+    this.status = {
+      driver: {
+        status : 'available'
+      }
+    // tslint:disable-next-line:semicolon
+    }
+    console.log('update status cancel trip', this.status);
+    this.dataservice.createstatus(this.tokenid, this.status, this.iddriver).subscribe((resu) => {
+    console.log('update status', resu);
+    }, (err) => {
+      console.log(err);
+    });
+    this.statustrip = {
+      trip: {
+        status : 'oncanceled'
+      }
+    // tslint:disable-next-line:semicolon
+    }
+    this.dataservice.offtrip(this.tokenid, this.tripid, this.statustrip).subscribe((data) => {
       console.log('cancel trip berhasil', data);
       this.presentRouteLoader('Tunggu sebentar ...');
       this.nav.push(TabsPage);
@@ -748,7 +588,8 @@ getassignedDriver() {
   }
   doCall() {
     this.presentRouteLoader('Tunggu sebentar ...');
-    console.log('call or sms:' + this.calldriver);
+    this.storage.get('contact').then((contact) => {
+    console.log('call or sms:' + contact);
     let confirm = this.alertCtrl.create({
       title: 'Kontak Pengemudi',
       message: 'Panggil atau kirim pesan pengemudi ?',
@@ -756,8 +597,11 @@ getassignedDriver() {
         {
           text: 'Call',
           handler: () => {
-            console.log('call no hp:' + this.calldriver);
-            window.open('tel:' + this.calldriver);
+            console.log('call no hp:' + contact);
+            // this.callNumber.callNumber(result.user.phone_number, true)
+            // .then(res => console.log('Launched dialer!', res))
+            // .catch(err => console.log('Error launching dialer', err));
+            window.open('tel:' + contact);
             console.log('Call clicked');
           }
         },
@@ -771,9 +615,14 @@ getassignedDriver() {
       ]
     });
     confirm.present();
-  }
+  }, (err) => {
+    console.log(err);
+  });
+}
   sendSMS() {
-  console.log('sms no hp:' + this.calldriver);
+  this.presentRouteLoader('Tunggu sebentar ...');
+  this.storage.get('contact').then((contact) => {
+  console.log('call or sms:' + contact);
 
   let options = {
         replaceLineBreaks: false, // true to replace \n by a new line, false by default
@@ -782,12 +631,15 @@ getassignedDriver() {
             // intent: '' // Sends sms without opening default sms app
           }
   };
-  this.smsVar.send(this.calldriver, 'Hai, Pengemudi', options);
+  this.smsVar.send(contact, 'Hai, Pengemudi ' +this.drivername+ '', options);
    // .then(()=>
   // {
   // alert('success');
   // }
   // alert('failed');
+  }, (err) => {
+    console.log(err);
+  });
   }
 
   canceltrip() {
@@ -882,18 +734,16 @@ getassignedDriver() {
       console.log(response);
       // if (status === 'OK') {
       if (status === google.maps.DirectionsStatus.OK) {
-        console.log('data', response.routes[0].legs[0].distance);
-        console.log('data', response.routes[0].legs[0].duration);
-        this.distances = response.routes[0].legs[0].distance.text;
-        console.log('distances', this.distances);
-        this.jarak = response.routes[0].legs[0].duration.text;
-        this.storage.set('jarak', this.jarak);
-        this.storage.set('distance', this.distances);
-        console.log('times', this.jarak);
+        console.log('data distance2', response.routes[0].legs[0].distance);
+        console.log('data duration2', response.routes[0].legs[0].duration);
+        let times = response.routes[0].legs[0].duration.value;
+        // this.distances = this.getEstimatedTimeOfArrival(times);
+        console.log('distances', response.routes[0].legs[0].distance.value);
+        console.log('route', this.route);
         let route = response.routes[0].legs[0];
         console.log('data', route);
-        this.mapService.createMarker(route.start_location);
-        console.log('origin', route.start_location);
+        // this.mapService.createMarker(route.start_location);
+        // console.log('origin', route.start_location);
         this.mapService.createMarker1(route.end_location);
         // this.directionsDisplay.setDirections(response);
         this.mapService.directions(response);
@@ -902,6 +752,58 @@ getassignedDriver() {
       }
     });
 
+  }
+  getEstimatedTimeOfArrival(seconds) {
+    let hours = Math.floor(seconds / 3600);
+    let minutes = Math.floor(seconds / 60);
+    if (hours > 1) {
+      // return seconds('{0} hrs', hours);
+      this.waktu = hours;
+      console.log('hours1', hours);
+      this.storage.set('waktus', hours);
+      } else if (hours === 1) {
+      console.log('hours2', hours);
+      this.storage.set('waktus', hours);
+      // return seconds('{0} hr', hours);
+      this.waktu = hours;
+      } else {
+      if (minutes > 3) {
+      console.log('minutes', minutes);
+      this.waktu = minutes;
+      this.storage.set('waktus', minutes);
+      // return seconds('{0} mins', minutes);
+      } else {
+        // return '0';
+      this.waktu = '0';
+      this.storage.set('waktus', this.waktu);
+      }
+      }
+  }
+  getEstimatedTimeOfArrival2(seconds) {
+    let hours = Math.floor(seconds / 3600);
+    let minutes = Math.floor(seconds / 60);
+    if (hours > 1) {
+      // return seconds('{0} hrs', hours);
+      this.waktu = hours;
+      console.log('hours1', hours);
+      this.storage.set('times', hours);
+      } else if (hours === 1) {
+      console.log('hours2', hours);
+      this.storage.set('times', hours);
+      // return seconds('{0} hr', hours);
+      this.waktu = hours;
+      } else {
+      if (minutes > 3) {
+      console.log('minutesss', minutes);
+      this.waktu = minutes;
+      this.storage.set('times', minutes);
+      // return seconds('{0} mins', minutes);
+      } else {
+        // return '0';
+      this.waktu = '0';
+      this.storage.set('times', this.waktu);
+      }
+      }
   }
   goToHome(): void {
     this.presentRouteLoader('Tunggu sebentar ...');

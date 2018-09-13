@@ -69,7 +69,7 @@ export class LoginPage {
     this.loginForm.value.password = btoa(this.loginForm.value.password);
     console.log(this.loginForm.value);
     this.auth.authenticate(this.loginForm.value).subscribe((res) => {
-    this.presentRouteLoader('Berhasil masuk...');
+    // this.presentRouteLoader('Berhasil masuk...');
     // this.auth.getDriver(res.access_token).subscribe((data) => {
     // console.log(data);
     // let driverindex = data.drivers;
@@ -84,10 +84,16 @@ export class LoginPage {
     this.storage.set('isLoggedIn', true);
     this.storage.set('access_token', res.access_token);
     this.storage.set('user_id', res.user_id);
-    this.storage.set('division_id', res.access_level);
     this.userid = res.user_id;
     if (res.user_id !== undefined) {
-      // this.app.getRootNavs()[0].setRoot('TabsMenuPage');
+      if (res.access_token !== null && res.access_level !== 4) {
+    this.auth.getDivision(res.access_token, res.access_level).subscribe((data) => {
+    console.log('data site_id', data.divisions[0].site_id);
+    this.storage.set('site_id', data.divisions[0].site_id);
+      });
+      }
+    // this.app.getRootNavs()[0].setRoot('TabsMenuPage');
+      this.presentRouteLoader('Berhasil masuk...');
       this.nav.setRoot(TabsPage);
     } else {
       this.globalService.toastInfo('Gagal login, username atau password salah', 3000, 'top');

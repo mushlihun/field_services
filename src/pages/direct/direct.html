@@ -35,13 +35,13 @@
             <ion-item class="identity2">
               <ion-icon class="people" name="people" item-left small ></ion-icon>
               <!-- <ion-label [(ngModel)]="full_name">{{full_name}}</ion-label> -->
-              <p>{{title}} {{drivername}}</p>
+              <p text-capitalize class="title">{{title}} {{drivername}}</p>
               <ion-icon class="car" name="car" item-left small ></ion-icon>
-              <p>Direct</p>
+              <p class="title">Direct</p>
               <ion-icon class="text" name="text" item-left small ></ion-icon>
-              <!-- <p>{{note}}</p> -->
-              <p>{{statustrip}}</p>
-              <ion-note><h1>{{waktu}}</h1><p text-right>away</p></ion-note> 
+              <p class="title">{{note}}</p>
+              <!-- <p>{{statustrip}}</p> -->
+              <ion-note><h1>{{waktu}} mins</h1><p text-right>away</p></ion-note> 
               <!-- <ion-note><h1>{{time}}</h1><p text-right>away</p></ion-note>  -->
               <!-- <ion-note><h1>3</h1><p text-right>min away</p></ion-note>    -->
             </ion-item>
@@ -55,7 +55,7 @@
         </button>
       </ion-fab>
       <ion-fab round right bottom class="btn-order">
-      <button ion-button full (click)="canceltrip()" [disabled]="onstarted=='onstart'" class="cancel">
+      <button ion-button full (click)="canceltrip()" [disabled]="onstarted=='ontransport'" class="cancel">
         <ion-icon name="close-circle"></ion-icon>
         <p>CANCEL TRIP</p>
       </button>

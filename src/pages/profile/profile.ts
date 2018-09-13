@@ -1,3 +1,4 @@
+import { FeedbackPage } from './../feedback/feedback';
 import { DataServiceProvider } from './../../providers/data-service/data-service';
 import { Storage } from '@ionic/storage';
 import { AuthService } from './../../providers/auth/auth-service';
@@ -19,11 +20,15 @@ export class ProfilePage {
   loading: any;
   token: any;
   id: any;
-  public fullname: any;
-  public email: any;
-  public phone: any;
-  public divisionid: any;
-  private userid: any;
+  fullname: any;
+  email: any;
+  phone: any;
+  divisionid: any;
+  divisiname: any;
+  title: any;
+  userid: any;
+  site: any;
+  region: any;
      constructor(
       public app: App,
       private platform: Platform,
@@ -47,15 +52,34 @@ export class ProfilePage {
       this.token = res[1];
       console.log('token', this.token);
       this.dataservice.getUser(this.token, this.userid).subscribe((data) => {
+      console.log('hasil data', data);
       this.fullname = data.user.full_name;
       this.email = data.user.email;
       this.phone = data.user.phone_number;
-      console.log(data);
-      console.log(data.user.full_name);
-      this.auth.getDivisions(this.token, data.user.division_id).subscribe((result) => {
-        this.storage.set('name', result.division.name);
-        this.divisionid = result.division.name;
-        console.log(result);
+      if (data.user.gender === 'Male') {
+        this.title = 'Mr';
+        console.log('pria', data.user.gender);
+      } else if (data.user.gender === 'Female') {
+        this.title = 'Mr';
+        console.log('wanita', data.user.gender);
+      }
+      console.log('fullname', data.user.full_name);
+      this.auth.getDivisioname(this.token, data.user.division_id).subscribe((result) => {
+      this.storage.set('name', result.division.name);
+      this.divisiname = result.division.name;
+      console.log('divisionname', result);
+      this.auth.getSite(this.token, result.division.site_id).subscribe((datas) => {
+      this.site = datas.site.name;
+      console.log('site', result);
+      this.auth.getRegion(this.token, datas.site.id).subscribe((datar) => {
+      this.region = datar.region.name;
+      console.log('region', result);
+        }, (err) => {
+          console.log(err);
+        });
+        }, (err) => {
+          console.log(err);
+        });
       }, (err) => {
         console.log(err);
       });
@@ -95,21 +119,33 @@ export class ProfilePage {
   }
   getProfile() {
     this.storage.get('full_name').then((fullname) => {
+      console.log('fullname,', fullname);
       this.fullname = fullname;
     });
     this.storage.get('email').then((email) => {
+      console.log('email,', email);
       this.email = email;
     });
     this.storage.get('phone_number').then((phone) => {
+      console.log('phone,', phone);
       this.phone = phone;
     });
+    this.storage.get('gender').then((gender) => {
+      if (gender === 'Male') {
+        this.title = 'Mr';
+        console.log('pria', gender);
+      } else if (gender === 'Female') {
+        this.title = 'Mr';
+        console.log('wanita', gender);
+      }
+    });
     this.storage.get('name').then((divisionid) => {
-      this.divisionid = divisionid;
+      console.log('divisionname,', divisionid);
+      this.divisiname = divisionid;
     });
   }
 
   goToChange(): void {
-    this.presentRouteLoader('Tunggu sebentar ...');
     Promise.all([this.storage.get('user_id'), this.storage.get('access_token')]).then((res) => {
       console.log('data', res);
       this.token = res[1];
@@ -128,6 +164,10 @@ export class ProfilePage {
     // this.nav.setRoot(LoginPage);
     this.appCtrl.getRootNav().setRoot(LoginPage);
   }
+  // feedback(): void {
+  //   this.presentRouteLoader('Tunggu sebentar ...');
+  //   this.nav.push(FeedbackPage);
+  // }
   isReadonly() {
     return this.isReadonly;   // return true/false 
   }
@@ -135,17 +175,17 @@ export class ProfilePage {
      this.presentRouteLoader('Tunggu sebentar ...');
     // pop to confirm if user really wishes to logout
      let confirm = this.alertCtrl.create({
-        title: 'Are you sure you want to logout?',
-        message: '',
+        title: 'Perhatian!',
+        message: 'Apakah anda yakin ingin keluar ?',
         buttons: [
           {
-            text: 'Cancel',
+            text: 'CANCEL',
             handler: () => {
               // do nothing 
             }
           },
           {
-            text: 'Yes',
+            text: 'OK',
             handler: () => {
               // call user logout service
     Promise.all([this.storage.get('user_id'), this.storage.get('access_token')]).then((res) => {
@@ -162,6 +202,21 @@ export class ProfilePage {
     // tslint:disable-next-line:semicolon
     }
     this.auth.logout(this.token, this.userid, datatoken).subscribe((data) => {
+    this.storage.set('trip_id', '' || null);
+    this.storage.set('statustrip', '' || null);
+    this.storage.set('ordered', false);
+    this.storage.set('feedbackPage', false);
+    this.storage.set('waypointid',  '' || null);
+    this.storage.set('drivername',  '' || null);
+    this.storage.set('gender',  '' || null);
+    this.storage.set('noted',  '' || null);
+    this.storage.set('plates',  '' || null);
+    this.storage.set('waktus',  '' || null);
+    this.storage.set('jarak', '' || null);
+    this.storage.set('distance', '' || null);
+    this.storage.set('wpickup_location',  '' || null);
+    this.storage.set('wdropoff_location',  '' || null);
+    this.storage.set('contact', '' || null);
     this.storage.clear();
     console.log('data', data);
     this.goToLogin();

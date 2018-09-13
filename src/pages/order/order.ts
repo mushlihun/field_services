@@ -75,6 +75,8 @@ export class OrderPage extends BasePage {
         // this.waypoints = data.waypoints;
         console.log(JSON.stringify(data.waypoints));
         data.waypoints[0].sequence = i;
+        console.log ('data.waypoints[0]', data.waypoints[0]);
+        console.log ('data.waypoints[0]', data.waypoints[0].sequence);
         console.log (data.waypoints[0].pickup_location);
         this.dataservice.getUsers(accesstoken, driveridd).subscribe((datas) => {
           data.waypoints[0].mileage = datas.users[0].full_name;

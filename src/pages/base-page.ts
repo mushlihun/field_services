@@ -20,7 +20,7 @@ export class BasePage {
   displayErrorAlert(): void {
     const prompt = this.alertCtrl.create({
       title: 'ArmadaMAS User',
-      message: 'Unknown error, please try again later',
+      message: 'GPS dan lokasi jaringan tidak tersedia. Klik OK untuk mencoba lagi',
       buttons: ['OK']
     });
     prompt.present();

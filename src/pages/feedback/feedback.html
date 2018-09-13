@@ -6,29 +6,28 @@
 <ion-content>
   
   <div class="feedback-info">
-     
           <p class="info" text-center>Anda telah mencapai tujuan</p>
       <ion-card>          
-          <ion-item>
-            <ion-icon class="icon-locate" name="locate" item-left large ></ion-icon>
+          <ion-item text-wrap>
+            <ion-icon class="locates" name="locate" item-left large ></ion-icon>
             <div>Pick-up Location</div>
             <!-- <div class="pick">Jl. Ketapang Utara, Krukut, Tamansari, Kota Jakarta Barat, Daerah Khusus Ibukota Jakarta 11140</div> -->
-            <div class="pickup">{{departure}}</div>
+            <div class="pick">{{departure}}</div>
           </ion-item>
           </ion-card>
           <h6 class="strip" text-center>|</h6> 
           <ion-card class="person">
           <ion-item>
-              <ion-icon name="person" item-left large ></ion-icon>
+              <ion-icon class="persons" name="person" item-left large ></ion-icon>
               <div>Your Driver</div>
               <!-- <div class="pick">Mr. Bagus Widianto Adm</div> -->
-              <div class="namedriver">{{drivername}}</div>
+              <div class="namedriver">{{title}}. {{drivername}}</div>
           </ion-item>
           </ion-card> 
           <h6 class="strip" text-center>|</h6>  
         <ion-card>
-          <ion-item >
-              <ion-icon class="icon-pin" name="pin" item-left large ></ion-icon>
+          <ion-item text-wrap>
+              <ion-icon center class="pins" name="pin" item-left large ></ion-icon>
               <div>Drop-off Location</div>
               <!-- <div class="pick">Monas</div> -->
               <div class="pick">{{destination}}</div>
@@ -36,9 +35,9 @@
         </ion-card>
         
         <ion-card class="trip">
-            <ion-item >
+            <ion-item>
                 <div text-center>Trip Time</div>
-                <div class="pick" text-center>{{times}}</div>
+                <div class="pick" text-center>{{triptime}} mins</div>
               </ion-item>
         </ion-card>
         <ion-card class="km">
@@ -58,6 +57,6 @@
         [value]="0"
         (clicked)="starClicked($event)">
     </ion-rating>
-  </div>
-      <button class="btn-login" ion-button full color="primary" (click)="Feedback($event)">SUBMIT</button>
+    <button class="btn-login" ion-button full color="primary" [disabled]="rate=='null || 0'" (click)="submitfeedback()">SUBMIT</button>  
+</div>
 </ion-content>
